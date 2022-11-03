@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LcnPchkConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="lcnpchkconfig.xsd">
+    <Header>
+        <Version major="1" minor="3" />
+        <Generator>LCN-PCHK 3.2.3</Generator>
+    </Header>
+    <Global>
+        <Language>de</Language>
+    </Global>
+    <LicenseInformation>
+        <Licensee></Licensee>
+        <LicenseKeys />
+    </LicenseInformation>
+    <LcnRealTimeClockSync xsi:type="SyncNtpTime" rtcForce="false">de.pool.ntp.org</LcnRealTimeClockSync>
+    <Communication>
+        <LCNPort resetRTSDelay="1" checkCDDelay="8" checkDSR="true" useCTS="true" throttling="true">ttyS1</LCNPort>
+        <HostPort>TCP/IP</HostPort>
+        <TCPPortNum>4114</TCPPortNum>
+        <TCPInactivityTimeout>1800</TCPInactivityTimeout>
+        <User>lcn:b94fe9e10aa17f2638623de3fb6c573e</User>
+        <HostId>4</HostId>
+        <RemoteConfigurationXmlRpcPort>4220</RemoteConfigurationXmlRpcPort>
+    </Communication>
+</LcnPchkConfiguration>
