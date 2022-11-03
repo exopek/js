@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -17,30 +16,27 @@ class CreateListProXml extends StatefulWidget {
   _CreateListProXmlState createState() => _CreateListProXmlState();
 }
 
-Future<List> pickfile() async {
+Future<PlatformFile> pickfile() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles();
 
   if (result != null) {
-    //Uint8List file = result.files.first.bytes!;
-    String fileName = result.files.first.name;
-    return [fileName];
+    PlatformFile file = result.files.first;
+    return file;
   } else {
-    return [];
+    throw Exception('No file selected.');
     // User canceled the picker
   }
 }
 
 class _CreateListProXmlState extends State<CreateListProXml> {
-
   late String fileName;
-
+  late PlatformFile file;
 
   @override
   void initState() {
     fileName = '';
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -72,114 +68,125 @@ class _CreateListProXmlState extends State<CreateListProXml> {
 
   Widget settingsContent() {
     return FutureBuilder<UploadFile>(
-      future: Helper().loadLastUploadXml(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Container(
-            color: Theme.of(context).primaryColor,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0, top: 15.0),
-                          child: Container(
-                              child: Text('Für alle Ansichten die Gebäudedatei (xml) hochladen:',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22.0
-                                ),
-                              )
-                          ),
-                        ),
-                        SizedBox(height: 20.0,),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0, top: 15.0),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
+        future: Helper().loadLastUploadXml(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Container(
+              color: Theme.of(context).primaryColor,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Column(
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 10.0, top: 15.0),
                             child: Container(
-                                color: Colors.white10,
-                                child: Text('Aktuelle Konfigurationsdatei: ${snapshot.data!.name}',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16.0
-                                  ),
-                                )
+                                child: Text(
+                              'Für alle Ansichten die Gebäudedatei (xml) hochladen:',
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 22.0),
+                            )),
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 10.0, top: 15.0),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Container(
+                                  color: Colors.white10,
+                                  child: Text(
+                                    'Aktuelle Konfigurationsdatei: ${snapshot.data!.name}',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16.0),
+                                  )),
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0, top: 15.0),
-                          child: Container(
-                              child: Text('Datum Konfigurationsdatei: ${snapshot.data!.date}',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0
-                                ),
-                              )
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 10.0, top: 15.0),
+                            child: Container(
+                                child: Text(
+                              'Datum Konfigurationsdatei: ${snapshot.data!.date}',
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 16.0),
+                            )),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0, top: 15.0),
-                          child: Container(
-                              child: Text('Uhrzeit Konfigurationsdatei: ${snapshot.data!.time}',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0
-                                ),
-                              )
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 10.0, top: 15.0),
+                            child: Container(
+                                child: Text(
+                              'Uhrzeit Konfigurationsdatei: ${snapshot.data!.time}',
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 16.0),
+                            )),
                           ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        TextButton(
-
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(Colors.black45),
-                                overlayColor: MaterialStateProperty.all(Colors.orangeAccent)
-                            ),
-                            onPressed: () {
-                              pickfile().then((value) {
-                                setState(() {
-                                  fileName = value[0];
-                                  //File file = value[1];
-                                });
-                              });
-                            },
-                            child: Text('Datei Auswählen')),
-                        Text('Ausgewählte Datei: $fileName')
-                      ],
-                    )
-                  ],
-                ),
-                Center(
-                  child: TextButton(
-                    child: Text('hochladen und ausführen',
-                      style: TextStyle(
-                          color: Colors.orangeAccent,
-                          fontSize: 20.0
+                        ],
                       ),
-                    ),
-                    onPressed: () {
-
-                    },
+                      Column(
+                        children: [
+                          TextButton(
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all(Colors.black45),
+                                  overlayColor: MaterialStateProperty.all(
+                                      Color.fromARGB(255, 233, 145, 31))),
+                              onPressed: () {
+                                pickfile().then((value) {
+                                  setState(() {
+                                    fileName = value.name;
+                                    file = value;
+                                  });
+                                });
+                              },
+                              child: Text('Datei Auswählen')),
+                          Text('Ausgewählte Datei: $fileName')
+                        ],
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-          );
-        } else {
-          return Container(
-            color: Theme.of(context).primaryColor,
-            child: CircularProgressIndicator(),
-          );
-        }
+                  Center(
+                    child: TextButton(
+                      child: Text(
+                        'hochladen und ausführen',
+                        style: TextStyle(
+                            color: Colors.orangeAccent, fontSize: 20.0),
+                      ),
+                      onPressed: () {
+                        print('hochladen und ausführen');
 
-      }
-    );
+                        /// TODO: upload file
+                        Helper().uploadXml(file: file).then((value) {
+                          if (value) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Datei erfolgreich hochgeladen'),
+                            ));
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content:
+                                  Text('Datei konnte nicht hochgeladen werden'),
+                            ));
+                          }
+                        });
+
+                      },
+                    ),
+                  )
+                ],
+              ),
+            );
+          } else {
+            /// Hier kann ein Ladebereich eingebaut werden
+            return Container(
+              color: Theme.of(context).primaryColor,
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
   }
 }
