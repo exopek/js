@@ -17,7 +17,10 @@ class CreateListProXml extends StatefulWidget {
 }
 
 Future<PlatformFile> pickfile() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles();
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['xml'],
+  );
 
   if (result != null) {
     PlatformFile file = result.files.first;
@@ -31,10 +34,22 @@ Future<PlatformFile> pickfile() async {
 class _CreateListProXmlState extends State<CreateListProXml> {
   late String fileName;
   late PlatformFile file;
+  late String modules;
+  late String rooms;
+  late String devices;
+  late bool isFileUploaded;
 
   @override
   void initState() {
     fileName = '';
+    modules = '';
+    rooms = '';
+    devices = '';
+    isFileUploaded = false;
+    file = PlatformFile(
+      name: '',
+      size: 0,
+    );
     super.initState();
   }
 
@@ -51,9 +66,13 @@ class _CreateListProXmlState extends State<CreateListProXml> {
               padding: const EdgeInsets.all(10.0),
               child: Responsive(
                   mobile: AspectRatio(
-                      aspectRatio: 16 / 9, child: settingsContent()),
+                      aspectRatio: 16 / 9,
+                      child:
+                          isFileUploaded ? _parserInfo() : _settingsContent()),
                   desktop: AspectRatio(
-                      aspectRatio: 16 / 9, child: settingsContent())),
+                      aspectRatio: 16 / 9,
+                      child:
+                          isFileUploaded ? _parserInfo() : _settingsContent())),
             ),
           ],
         ),
@@ -66,7 +85,25 @@ class _CreateListProXmlState extends State<CreateListProXml> {
     );
   }
 
-  Widget settingsContent() {
+  Widget _parserInfo() {
+    return AnimatedContainer(
+      duration: const Duration(seconds: 2),
+      curve: Curves.easeIn,
+      child: Column(
+        children: [
+          const Text('Ihr Projekt wurde erfolgreich hochgeladen.'),
+          const Text(
+              'Damit die Visualisierung die Projektdatei übernehmen kann, muss die VISU neu gestartet werden.'),
+          const Text('Information zum Einleseprozess:'),
+          Text('Module: $modules'),
+          Text('Räume: $rooms'),
+          Text('Schaltbare Elemente: $devices'),
+        ],
+      ),
+    );
+  }
+
+  Widget _settingsContent() {
     return FutureBuilder<UploadFile>(
         future: Helper().loadLastUploadXml(),
         builder: (context, snapshot) {
@@ -83,13 +120,13 @@ class _CreateListProXmlState extends State<CreateListProXml> {
                             padding:
                                 const EdgeInsets.only(left: 10.0, top: 15.0),
                             child: Container(
-                                child: Text(
+                                child: const Text(
                               'Für alle Ansichten die Gebäudedatei (xml) hochladen:',
                               style: TextStyle(
                                   color: Colors.white, fontSize: 22.0),
                             )),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 20.0,
                           ),
                           Padding(
@@ -101,7 +138,7 @@ class _CreateListProXmlState extends State<CreateListProXml> {
                                   color: Colors.white10,
                                   child: Text(
                                     'Aktuelle Konfigurationsdatei: ${snapshot.data!.name}',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.white, fontSize: 16.0),
                                   )),
                             ),
@@ -112,7 +149,7 @@ class _CreateListProXmlState extends State<CreateListProXml> {
                             child: Container(
                                 child: Text(
                               'Datum Konfigurationsdatei: ${snapshot.data!.date}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors.white, fontSize: 16.0),
                             )),
                           ),
@@ -122,7 +159,7 @@ class _CreateListProXmlState extends State<CreateListProXml> {
                             child: Container(
                                 child: Text(
                               'Uhrzeit Konfigurationsdatei: ${snapshot.data!.time}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors.white, fontSize: 16.0),
                             )),
                           ),
@@ -135,7 +172,7 @@ class _CreateListProXmlState extends State<CreateListProXml> {
                                   backgroundColor:
                                       MaterialStateProperty.all(Colors.black45),
                                   overlayColor: MaterialStateProperty.all(
-                                      Color.fromARGB(255, 233, 145, 31))),
+                                      const Color.fromARGB(255, 233, 145, 31))),
                               onPressed: () {
                                 pickfile().then((value) {
                                   setState(() {
@@ -144,7 +181,7 @@ class _CreateListProXmlState extends State<CreateListProXml> {
                                   });
                                 });
                               },
-                              child: Text('Datei Auswählen')),
+                              child: const Text('Datei Auswählen')),
                           Text('Ausgewählte Datei: $fileName')
                         ],
                       )
@@ -152,28 +189,36 @@ class _CreateListProXmlState extends State<CreateListProXml> {
                   ),
                   Center(
                     child: TextButton(
-                      child: Text(
+                      child: const Text(
                         'hochladen und ausführen',
                         style: TextStyle(
                             color: Colors.orangeAccent, fontSize: 20.0),
                       ),
                       onPressed: () {
-                        print('hochladen und ausführen');
-
-                        /// TODO: upload file
-                        Helper().uploadXml(file: file).then((value) {
-                          if (value) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        Helper()
+                            .uploadXml(file: file)
+                            .then<ParserResponse>((value) {
+                          if (value.status) {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
                               content: Text('Datei erfolgreich hochgeladen'),
                             ));
+                            setState(() {
+                              isFileUploaded = true;
+                              modules = value.modules;
+                              rooms = value.rooms;
+                              devices = value.devices;
+                            });
+                            throw (Exception('Complete'));
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
                               content:
                                   Text('Datei konnte nicht hochgeladen werden'),
                             ));
+                            throw (Exception('Incomplete'));
                           }
                         });
-
                       },
                     ),
                   )
@@ -183,8 +228,10 @@ class _CreateListProXmlState extends State<CreateListProXml> {
           } else {
             /// Hier kann ein Ladebereich eingebaut werden
             return Container(
+              height: 100.0,
+              width: 100.0,
               color: Theme.of(context).primaryColor,
-              child: CircularProgressIndicator(),
+              child: const CircularProgressIndicator(),
             );
           }
         });

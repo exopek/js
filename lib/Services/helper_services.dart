@@ -28,21 +28,17 @@ class Helper {
     }
   }
 
-  Future<bool> uploadXml({required PlatformFile file}) async {
+  Future<ParserResponse> uploadXml({required PlatformFile file}) async {
     Uri uri = Uri.parse('controller/api/upload.php');
+    if (file.bytes!.isEmpty) {
+      return ParserResponse(false, 'File is empty.', '', '', '');
+    }
     List<int> bytes = file.bytes!; // Uint8List to List<int>
     String base64 = base64Encode(bytes);
     Response response = await post(uri, body: {'file': base64});
     if (response.statusCode == 200) {
-      //var responseData = await response.stream.toBytes();
-      //var responseToString = String.fromCharCodes(responseData);
-      //var jsonBody = jsonDecode(responseToString);
-      //print(jsonBody);
-
-      /// Get echo from request back
-      //String echo = await response.stream.bytesToString();
-      //print(echo);
-      return true;
+      Map<String, dynamic> parserRespopnse = jsonDecode(response.body);
+      return ParserResponse.fromJson(parserRespopnse);
     } else {
       throw (Exception('Can not upload xml file.'));
     }
