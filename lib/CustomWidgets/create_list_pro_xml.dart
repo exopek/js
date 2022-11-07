@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:visu/CustomWidgets/header.dart';
 import 'package:visu/Models/models.dart';
 import 'package:visu/Responsive/responsive.dart';
+import 'package:visu/Views/login_page.dart';
 
 import '../Services/helper_services.dart';
 
@@ -31,13 +32,17 @@ Future<PlatformFile> pickfile() async {
   }
 }
 
-class _CreateListProXmlState extends State<CreateListProXml> {
+class _CreateListProXmlState extends State<CreateListProXml>
+    with TickerProviderStateMixin {
   late String fileName;
   late PlatformFile file;
   late String modules;
   late String rooms;
   late String devices;
   late bool isFileUploaded;
+  late AnimationController _controller;
+  late bool _showParserResult;
+  late bool _showReboot;
 
   @override
   void initState() {
@@ -46,11 +51,29 @@ class _CreateListProXmlState extends State<CreateListProXml> {
     rooms = '';
     devices = '';
     isFileUploaded = false;
+    _showParserResult = false;
+    _showReboot = false;
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 6));
     file = PlatformFile(
       name: '',
       size: 0,
     );
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          isFileUploaded = false;
+          _showParserResult = true;
+        });
+      }
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -65,14 +88,27 @@ class _CreateListProXmlState extends State<CreateListProXml> {
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Responsive(
-                  mobile: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child:
-                          isFileUploaded ? _parserInfo() : _settingsContent()),
-                  desktop: AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child:
-                          isFileUploaded ? _parserInfo() : _settingsContent())),
+                mobile: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: _showParserResult
+                        ? _parserContent()
+                        : Stack(
+                            children: [
+                              _settingsContent(),
+                              isFileUploaded ? _parserInfo() : const SizedBox()
+                            ],
+                          )),
+                desktop: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: _showParserResult
+                        ? _parserContent()
+                        : Stack(
+                            children: [
+                              _settingsContent(),
+                              isFileUploaded ? _parserInfo() : const SizedBox()
+                            ],
+                          )),
+              ),
             ),
           ],
         ),
@@ -85,28 +121,151 @@ class _CreateListProXmlState extends State<CreateListProXml> {
     );
   }
 
+  Widget _reboot() {
+    return FutureBuilder(builder: (BuildContext context, snapshot) {
+      if (snapshot.hasData && snapshot.data == true) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (BuildContext context) {
+            return SignUpScreen();
+          },
+        ));
+        return SizedBox();
+      } else if (snapshot.connectionState == ConnectionState.waiting) {
+        return Container(
+          child: const CircularProgressIndicator(),
+        );
+      } else {
+        return Text('Reboot fehlgeschlagen');
+      }
+    });
+  }
+
+  Widget _parserContent() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, top: 15.0),
+          child: Container(
+              child: const Text(
+            'Information zum Einleseprozess:',
+            style: TextStyle(color: Colors.white, fontSize: 22.0),
+          )),
+        ),
+        const SizedBox(
+          height: 20.0,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, top: 15.0),
+          child: Container(
+              child: Text(
+            'Module: $modules',
+            style: const TextStyle(color: Colors.white, fontSize: 16.0),
+          )),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, top: 15.0),
+          child: Container(
+              child: Text(
+            'Räume: $rooms',
+            style: const TextStyle(color: Colors.white, fontSize: 16.0),
+          )),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10.0, top: 15.0),
+          child: Container(
+              child: Text(
+            'Schaltbare Element: $devices',
+            style: const TextStyle(color: Colors.white, fontSize: 16.0),
+          )),
+        ),
+        Row(
+          children: [
+            const Icon(
+              Icons.info_outline_rounded,
+            ),
+            const Text(
+              'Damit die Visualisierung die Projektdatei übernehmen kann, muss die VISU neu gestartet werden.',
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
+            )
+          ],
+        ),
+        Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _showReboot = true;
+                  });
+                },
+                child: const Text('Neustart',
+                    style:
+                        TextStyle(color: Colors.orangeAccent, fontSize: 16.0)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0, left: 10.0),
+              child: ElevatedButton(
+                onPressed: () {},
+                child: const Text('Zurück',
+                    style:
+                        TextStyle(color: Colors.orangeAccent, fontSize: 16.0)),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _parserInfo() {
-    return AnimatedContainer(
-      duration: const Duration(seconds: 2),
-      curve: Curves.easeIn,
-      child: Column(
-        children: [
-          const Text('Ihr Projekt wurde erfolgreich hochgeladen.'),
-          const Text(
-              'Damit die Visualisierung die Projektdatei übernehmen kann, muss die VISU neu gestartet werden.'),
-          const Text('Information zum Einleseprozess:'),
-          Text('Module: $modules'),
-          Text('Räume: $rooms'),
-          Text('Schaltbare Elemente: $devices'),
-        ],
-      ),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Center(
+          child: Container(
+            height: 300,
+            width: 600,
+            color: Colors.black.withOpacity(1.0 * _controller.value),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Ihr Projekt wurde erfolgreich hochgeladen.',
+                      style: TextStyle(
+                        color:
+                            Colors.white.withOpacity(1.0 * _controller.value),
+                        fontSize: 24.0,
+                      )),
+                ),
+                Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green.withOpacity(1.0 * _controller.value),
+                  size: 180.0,
+                ),
+                /*
+                const Text(
+                    'Damit die Visualisierung die Projektdatei übernehmen kann, muss die VISU neu gestartet werden.'),
+                const Text('Information zum Einleseprozess:'),
+                Text('Module: $modules'),
+                Text('Räume: $rooms'),
+                Text('Schaltbare Elemente: $devices'),
+                */
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget _settingsContent() {
+    print('try to load file');
     return FutureBuilder<UploadFile>(
         future: Helper().loadLastUploadXml(),
         builder: (context, snapshot) {
+          print(snapshot.data);
           if (snapshot.hasData) {
             return Container(
               color: Theme.of(context).primaryColor,
@@ -208,6 +367,7 @@ class _CreateListProXmlState extends State<CreateListProXml> {
                               modules = value.modules;
                               rooms = value.rooms;
                               devices = value.devices;
+                              _controller.forward(from: 0.0);
                             });
                             throw (Exception('Complete'));
                           } else {

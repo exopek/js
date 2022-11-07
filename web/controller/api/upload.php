@@ -1,14 +1,14 @@
 <?php
-header('Content-Type: application/json');
+//header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
 // get request method
 $method = $_SERVER['REQUEST_METHOD'];
-$target_dir = "../../../../../pchk/"; //"/pke_scripts/parser/";
-$target_file = $target_dir . "traumhaus.xml";
+$defines = require('../../path.php');
 
 if ($method == 'GET') {
     //print(PHP_OS);
     // Access other files
-    $lastUpload = file_get_contents("../../../../../pchk/upload_file.txt");
+    $lastUpload = file_get_contents($defines['uploadFile']);
     $data = array(
         'name' => explode("/", $lastUpload)[0],
         'date' => explode("-",explode("/",$lastUpload)[1])[0],
@@ -19,26 +19,52 @@ if ($method == 'GET') {
 }
 if ($method == 'POST') {
     if (isset($_POST["file"])) {
-        //print("File is set");
         $base64_string = $_POST["file"];
-        $fileHandler = fopen($target_file, "wb");
+        $fileHandler = fopen($defines['traumhausXml'], "wb");
         fwrite($fileHandler, base64_decode($base64_string));
         fclose($fileHandler);
         // python script to parse the file
-        $command = escapeshellcmd('python3 /Users/js/Desktop/Apache24/pchk/main.py');
+        $command = escapeshellcmd($defines['parser']);
         if (shell_exec($command) != NULL) {
-            $return["status"] = "success";
+            if (filesize($defines['parserConfig'])>0) {
+                $lines = file($defines['parserConfig']); 
+                foreach($lines as $line_num => $line){
+                    $parserInfo[] = $line;
+                }
+                $data = array(
+                    'status' => true,
+                    'message' => 'File uploaded successfully',
+                    'modules' => $parserInfo[0],
+                    'rooms' => $parserInfo[1],
+                    'devices' => $parserInfo[2],
+                );
+            } else {
+                $data = array(
+                    'status' => false,
+                    'message' => 'File uploaded successfully, but no config file was created',
+                );
+            } 
         } else {
-            $return["status"] = "error";
-        } //shell_exec("sudo python3 /pke_scripts/parser/main.py");
-
-        
-        // Es muss der Prozess gestartet werden, der die Datei verarbeitet
+            if (filesize($defines['parserError'])>0){ 
+                $error = file_get_contents($defines['parserError']);
+                $data = array(
+                    'status' => false,
+                    'message' => $error,
+                );
+            } else {
+                $data = array(
+                    'status' => false,
+                    'message' => 'File could not be uploaded',
+                );
+            }
+        }
     } else {
-        $return["status"] = "error";
-        $return["message"] = "No file was sent";
+        $data = array(
+            'status' => false,
+            'message' => 'No file was uploaded',
+        );
     }
-    $json_response = json_encode($return);
+    $json_response = json_encode($data);
     echo $json_response;
 }
 if ($method == 'PUT') {

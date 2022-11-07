@@ -21,8 +21,10 @@ class Helper {
     Uri uri = Uri.parse('controller/api/upload.php');
     Response response = await get(uri);
     if (response.statusCode == 200) {
+      print(response.body);
       Map<String, dynamic> uploadFile = jsonDecode(response.body);
       return UploadFile.fromJson(uploadFile);
+      //return UploadFile('name', '', '', true, true);
     } else {
       throw (Exception('Can not load last xml file info.'));
     }
