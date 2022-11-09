@@ -37,15 +37,19 @@ dependencies:
   xml: ^5.3.1
   filesystem_picker: ^2.0.0
   path_provider: ^2.0.8
-  file_picker: ^4.3.3
+  file_picker: ^5.2.2
   http: ^0.13.4
   dio: ^4.0.4
   dio_cookie_manager: ^2.0.0
   cookie_jar: ^3.0.1
   provider: ^6.0.2
   dart_ipify: ^1.1.1
+  isar: 3.0.2
+  isar_flutter_libs: 3.0.2
 
 dev_dependencies:
+  isar_generator: 3.0.2
+  build_runner: any
   flutter_test:
     sdk: flutter
 

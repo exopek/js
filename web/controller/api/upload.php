@@ -8,12 +8,21 @@ $defines = require('../../path.php');
 if ($method == 'GET') {
     //print(PHP_OS);
     // Access other files
+    
     $lastUpload = file_get_contents($defines['uploadFile']);
     $data = array(
         'name' => explode("/", $lastUpload)[0],
         'date' => explode("-",explode("/",$lastUpload)[1])[0],
         'time' => explode("-",explode("/",$lastUpload)[1])[1],
     );
+    
+    /*
+    $data = array(
+        'name' => 'test',
+        'date' => 'test',
+        'time' => 'test',
+    );
+    */
     $json_response = json_encode($data);
 	echo $json_response;
 }

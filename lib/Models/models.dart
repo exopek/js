@@ -73,3 +73,81 @@ class ParserResponse {
         'devices': devices,
       };
 }
+
+class Room {
+  final String label;
+  final String icon;
+  final String key;
+
+  Room({
+    required this.label,
+    required this.icon,
+    required this.key
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'label': label,
+      'icon': icon,
+      'key': key
+    };
+  }
+
+  factory Room.clear() {
+    return Room(
+      label: '',
+      icon: '',
+      key: '',
+    );
+  }
+}
+
+class Device {
+  final String label;
+  final String? icon;
+  final String item;
+  final String? step;
+  final String function;
+  final String key;
+
+  Device(
+      {required this.label,
+      required this.item,
+      this.icon,
+      this.step,
+      required this.key,
+      required this.function});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'label': label,
+      'item': item,
+      'icon': icon,
+      'step': step,
+      'key': key,
+      'function': function
+    };
+  }
+
+  factory Device.clear() {
+    return Device(label: '', item: '', icon: '', step: '', function: '', key: '');
+  }
+}
+
+class SiteMap {
+  final Map<String, dynamic> floors;
+  final Map<String, dynamic> rooms;
+  final Map<String, dynamic> devices;
+
+  SiteMap({required this.floors, required this.rooms, required this.devices});
+
+  factory SiteMap.fromJson(siteMap) {
+    // Parsen der SiteMap
+
+    return SiteMap(
+      floors: siteMap['floors'],
+      rooms: siteMap['rooms'],
+      devices: siteMap['devices'],
+    );
+  }
+}

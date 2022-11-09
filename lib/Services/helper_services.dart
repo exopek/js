@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:visu/Models/models.dart';
+import 'package:visu/Routes/routes.dart';
 
 class Helper {
   Future<Image> loadAsset({required String assetPath}) async {
@@ -18,20 +19,19 @@ class Helper {
   }
 
   Future<UploadFile> loadLastUploadXml() async {
-    Uri uri = Uri.parse('controller/api/upload.php');
+    Uri uri = Uri.parse(EndPoints().getEndpoints()['UPLOAD_FILE']);
     Response response = await get(uri);
     if (response.statusCode == 200) {
       print(response.body);
       Map<String, dynamic> uploadFile = jsonDecode(response.body);
       return UploadFile.fromJson(uploadFile);
-      //return UploadFile('name', '', '', true, true);
     } else {
       throw (Exception('Can not load last xml file info.'));
     }
   }
 
   Future<ParserResponse> uploadXml({required PlatformFile file}) async {
-    Uri uri = Uri.parse('controller/api/upload.php');
+    Uri uri = Uri.parse(EndPoints().getEndpoints()['UPLOAD_FILE']);
     if (file.bytes!.isEmpty) {
       return ParserResponse(false, 'File is empty.', '', '', '');
     }
