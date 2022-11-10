@@ -46,6 +46,7 @@ dependencies:
   dart_ipify: ^1.1.1
   isar: 3.0.2
   isar_flutter_libs: 3.0.2
+  drag_and_drop_lists: ^0.3.3
 
 dev_dependencies:
   isar_generator: 3.0.2

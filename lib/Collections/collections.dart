@@ -11,3 +11,16 @@ class TestSideMap {
   late List<String> rooms;
   late List<String> devices;
 }
+
+@Collection()
+class TestRoom {
+  Id? id;
+  late String name;
+  late String roomIcon;
+  late List<String> devices;
+  late String floor;
+  late List<String> item;
+  late List<String> label;
+  late List<String> icon;
+  late List<String> step;
+}

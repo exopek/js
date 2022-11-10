@@ -16,10 +16,15 @@ class OpenhabServices {
     }
   }
 
-  Future getSiteMap() async {
+  Future<Floor> getSiteMap() async {
     Uri uri = Uri.parse('controller/api/load.php');
     List _subStrings = [];
-    Map<String, List> _floors = {'names': [], 'icons': [], 'rooms': [], 'roomQuantity': [], 'devices': []};
+    Map<String, List> _floors = {
+      'names': [],
+      'icons': [],
+      'rooms': [],
+      'devices': []
+    };
     String _floorKey = '';
     String _roomKey = '';
     Response res = await get(uri);
@@ -28,6 +33,7 @@ class OpenhabServices {
       _subStrings.add(res.body.split('#'));
       for (int i = 0; i < _subStrings[0].length - 2; i++) {
         String subString = _subStrings[0][i].replaceAll(' ', '');
+
         /// Finde alles zu einer Etage
         if (subString.contains('Frame')) {
           if (subString.contains('label')) {
@@ -37,19 +43,20 @@ class OpenhabServices {
               int startIcon = subString.indexOf('icon=');
               int endIcon = startIcon + ('icon='.length - 1);
               int endLine = subString.indexOf('{');
-              _floors['names']!.add(subString.substring(endLabel+1, startIcon));
-              _floors['icons']!.add(subString.substring(endIcon+1, endLine));
-              _floorKey = subString.substring(endLabel+1, startIcon);
+              _floors['names']!
+                  .add(subString.substring(endLabel + 1, startIcon));
+              _floors['icons']!.add(subString.substring(endIcon + 1, endLine));
+              _floorKey = subString.substring(endLabel + 1, startIcon);
             } else {
               _floors['icons']!.add('');
             }
-
           } else {
-            _floors['names']!.add('');
-            _floors['icons']!.add('');
+            _floors['names']!.add('Alles');
+            _floors['icons']!.add(' ');
             _floorKey = 'no floor';
           }
         }
+
         /// Finde alles zu einem Raum
         else if (subString.contains('Text') && subString.contains('{')) {
           Room room;
@@ -60,22 +67,25 @@ class OpenhabServices {
               int startIcon = subString.indexOf('icon=');
               int endIcon = startIcon + ('icon='.length - 1);
               int endLine = subString.indexOf('{');
-              _roomKey = subString.substring(endLabel+1, startIcon);
+              _roomKey = subString.substring(endLabel + 1, startIcon);
               room = Room(
-                  label: subString.substring(endLabel+1, startIcon),
-                  icon: subString.substring(endIcon+1, endLine),
-                  key: _floorKey.toString(), // Kopie des Wertes mit toString()
+                label: subString.substring(endLabel + 1, startIcon),
+                icon: subString.substring(endIcon + 1, endLine),
+                key: _floorKey.toString(), // Kopie des Wertes mit toString()
               );
               _floors['rooms']!.add(room);
             } else {
-              throw(Exception('Icon is missing'));
+              throw (Exception('Icon is missing'));
             }
           } else {
-            throw(Exception('Label is missing'));
+            throw (Exception('Label is missing'));
           }
         }
+
         /// Finde alles zu einem Device
-        else if (!subString.contains('sitemap') && !subString.contains('}') && !subString.contains('{')) {
+        else if (!subString.contains('sitemap') &&
+            !subString.contains('}') &&
+            !subString.contains('{')) {
           Device device;
           if (subString.contains('item')) {
             int startItem = subString.indexOf('item=');
@@ -91,20 +101,22 @@ class OpenhabServices {
                   int startIcon = subString.indexOf('icon=');
                   int endIcon = startIcon + ('icon='.length - 1);
                   device = Device(
-                      label: subString.substring(endLabel+1, startStep),
-                      item: subString.substring(endItem+1, startLabel),
-                      step: subString.substring(endStep+1, startIcon),
-                      icon: subString.substring(endIcon+1, subString.length - 1),
-                      key: _roomKey,
-                      function: subString.substring(hashIndex+1, startItem),
+                    label: subString.substring(endLabel + 1, startStep),
+                    item: subString.substring(endItem + 1, startLabel),
+                    step: subString.substring(endStep + 1, startIcon),
+                    icon:
+                        subString.substring(endIcon + 1, subString.length - 1),
+                    key: _roomKey,
+                    function: subString.substring(hashIndex + 1, startItem),
                   );
                   _floors['devices']!.add(device);
                 } else {
                   device = Device(
-                    label: subString.substring(endLabel+1, subString.length - 1),
-                    item: subString.substring(endItem+1, startLabel),
+                    label:
+                        subString.substring(endLabel + 1, subString.length - 1),
+                    item: subString.substring(endItem + 1, startLabel),
                     key: _roomKey,
-                    function: subString.substring(hashIndex+1, startItem),
+                    function: subString.substring(hashIndex + 1, startItem),
                   );
                   _floors['devices']!.add(device);
                 }
@@ -113,31 +125,34 @@ class OpenhabServices {
                   int startIcon = subString.indexOf('icon=');
                   int endIcon = startIcon + ('icon='.length - 1);
                   device = Device(
-                    label: subString.substring(endLabel+1, startIcon),
-                    item: subString.substring(endItem+1, startLabel),
-                    icon: subString.substring(endIcon+1, subString.length - 1),
+                    label: subString.substring(endLabel + 1, startIcon),
+                    item: subString.substring(endItem + 1, startLabel),
+                    icon:
+                        subString.substring(endIcon + 1, subString.length - 1),
                     key: _roomKey,
-                    function: subString.substring(hashIndex+1, startItem),
+                    function: subString.substring(hashIndex + 1, startItem),
                   );
                   _floors['devices']!.add(device);
                 } else {
                   device = Device(
-                    label: subString.substring(endLabel+1, subString.length - 1),
-                    item: subString.substring(endItem+1, startLabel),
+                    label:
+                        subString.substring(endLabel + 1, subString.length - 1),
+                    item: subString.substring(endItem + 1, startLabel),
                     key: _roomKey,
-                    function: subString.substring(hashIndex+1, startItem),
+                    function: subString.substring(hashIndex + 1, startItem),
                   );
                   _floors['devices']!.add(device);
                 }
               }
             } else {
-              throw(Exception('Label is missing'));
+              throw (Exception('Label is missing'));
             }
           } else {
-            throw(Exception('Item is missing'));
+            throw (Exception('Item is missing'));
           }
         }
-      };
+      }
+      ;
       //print(_floors['names']);
       //print(_floors['icons']);
       //print(_floors['rooms']);
@@ -154,7 +169,7 @@ class OpenhabServices {
       });
       */
       //print(_subStrings);
-      return res.body;
+      return Floor.fromMap(_floors);
     } else {
       throw 'unable to receive data.';
     }
