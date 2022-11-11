@@ -75,36 +75,46 @@ class ParserResponse {
 }
 
 class Floor {
-  final List<String> names;
-  final List<String> icons;
-  final List<Room> rooms;
-  final List<Device> devices;
+  final String name;
+  final String icon;
+  List<Room> rooms;
 
-  Floor(this.names, this.icons, this.rooms, this.devices);
+  Floor({required this.name, required this.icon, required this.rooms});
 
   Floor.fromMap(Map<String, dynamic> map)
-      : names = map['names'],
-        icons = map['icons'],
-        rooms = map['rooms'],
-        devices = map['devices'];
+      : name = map['name'],
+        icon = map['icon'],
+        rooms = map['rooms'];
 
   Map<String, dynamic> toMap() => {
-        'names': names,
-        'icons': icons,
+        'names': name,
+        'icons': icon,
         'rooms': rooms,
-        'devices': devices,
       };
+
+  updateRooms(List<Room> rooms) {
+    this.rooms = rooms;
+  }
 }
 
 class Room {
   final String label;
   final String icon;
   final String key;
+  List<Device> devices;
 
-  Room({required this.label, required this.icon, required this.key});
+  Room(
+      {required this.label,
+      required this.icon,
+      required this.key,
+      required this.devices});
 
   Map<String, dynamic> toMap() {
-    return {'label': label, 'icon': icon, 'key': key};
+    return {'label': label, 'icon': icon, 'key': key, 'devices': devices};
+  }
+
+  updateDevices(List<Device> devices) {
+    this.devices = devices;
   }
 
   factory Room.clear() {
@@ -112,6 +122,7 @@ class Room {
       label: '',
       icon: '',
       key: '',
+      devices: [],
     );
   }
 }

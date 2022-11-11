@@ -1,3 +1,4 @@
+import 'package:drag_and_drop_lists/drag_and_drop_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -14,19 +15,22 @@ class EditSiteMap extends StatefulWidget {
 }
 
 class _EditSiteMapState extends State<EditSiteMap> {
-  /*
-  final List<Room> dummyRooms = [
-    Room(label: 'Room 1', icon: 'Icon 1', key: 'Dummy 1'),
-    Room(label: 'Room 2', icon: 'Icon 2', key: 'Dummy 2'),
-    Room(label: 'Room 3', icon: 'Icon 3', key: 'Dummy 1'),
-    Room(label: 'Room 4', icon: 'Icon 4', key: 'Dummy 2'),
-    Room(label: 'Room 5', icon: 'Icon 5', key: 'Dummy 1'),
+  late List<Floor> _floors;
+  late bool _isLoading;
+  late int _floorIndex;
+
+  List<String> item = [
+    "GeeksforGeeks",
+    "Flutter",
+    "Developer",
+    "Android",
+    "Programming",
+    "CplusPlus",
+    "Python",
+    "javascript"
   ];
-  final List dummyFloors = [
-    'Dummy 1',
-    'Dummy 2',
-  ];
-  final List<Device> dummyDevices = [
+
+  List<Device> devices = [
     Device(
         label: 'Device 1', item: 'Item 1', key: 'Room 1', function: 'Switch'),
     Device(
@@ -38,44 +42,47 @@ class _EditSiteMapState extends State<EditSiteMap> {
     Device(
         label: 'Device 5', item: 'Item 5', key: 'Room 2', function: 'Switch'),
   ];
-  final List dummyIcons = [
-    'Dummy 1',
-    'Dummy 2',
-  ];
 
-  Future<Floor> getDummy() async {
-    Map<String, dynamic> _dummy = {
-      'rooms': dummyRooms,
-      'names': dummyFloors,
-      'devices': dummyDevices,
-      'icons': dummyIcons
-    };
-    //print(dummy);
-    //print(Floor.fromMap(_dummy).names);
-    return Floor.fromMap(_dummy);
+  void reorderData(int oldindex, int newindex, int roomIndex) {
+    setState(() {
+      if (newindex > oldindex) {
+        newindex -= 1;
+      }
+
+      //_floors[_floorIndex].rooms[oldindex].updateDevices(newDeviceList);
+
+      final device =
+          _floors[_floorIndex].rooms[roomIndex].devices.removeAt(oldindex);
+      _floors[_floorIndex].rooms[roomIndex].updateDevices(newindex, device);
+      //item.insert(newindex, items);
+    });
   }
 
   @override
   void initState() {
+    _isLoading = true;
+    _floorIndex = 0;
+    OpenhabServices().getSiteMap().then((value) {
+      print('InitState: $value');
+      setState(() {
+        _floors = value;
+        _isLoading = false;
+      });
+    });
     // TODO: implement initState
     super.initState();
   }
-  */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
       child: SingleChildScrollView(
-        //physics: const NeverScrollableScrollPhysics(),
-        child: FutureBuilder<Floor>(
-            // Floor
-            future: OpenhabServices().getSiteMap(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Column(
+          //physics: const NeverScrollableScrollPhysics(),
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : Column(
                   children: [
-                    /// Die Ansicht springt je nach größe automatich auf die richtige Ansicht
                     Responsive(
                       mobile: Padding(
                         padding: const EdgeInsets.all(30.0),
@@ -83,10 +90,10 @@ class _EditSiteMapState extends State<EditSiteMap> {
                           height: 52,
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: snapshot.data!.names.length,
+                              itemCount: _floors.length,
                               itemBuilder: (context, index) {
-                                return _buildFloorElement(
-                                    snapshot.data!.names[index]);
+                                return _buildFloorElement(_floors[index].name,
+                                    index); //_buildFloorElement('Test');
                               }),
                         ),
                       ),
@@ -96,24 +103,22 @@ class _EditSiteMapState extends State<EditSiteMap> {
                           height: 52,
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: snapshot.data!.names.length,
+                              itemCount: _floors.length,
                               itemBuilder: (context, index) {
-                                return _buildFloorElement(
-                                    snapshot.data!.names[index]);
+                                return _buildFloorElement(_floors[index].name,
+                                    index); //_buildFloorElement('Test');
                               }),
                         ),
                       ),
                     ),
-
-                    /// Header
                     const Padding(
-                      padding: EdgeInsets.only(left: 30.0),
+                      padding: EdgeInsets.only(left: 100.0),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text('Räume',
                             style: TextStyle(
-                              color: Colors.orangeAccent,
-                              fontSize: 30,
+                              color: Colors.white,
+                              fontSize: 40,
                             )),
                       ),
                     ),
@@ -127,12 +132,12 @@ class _EditSiteMapState extends State<EditSiteMap> {
                             child: ListView.builder(
                                 shrinkWrap: true,
                                 scrollDirection: Axis.vertical,
-                                itemCount: snapshot.data!.rooms.length,
+                                itemCount: _floors[_floorIndex]
+                                    .rooms
+                                    .length, // index ändert sich je nach ausgewähltem Stockwerk
                                 itemBuilder: (context, index) {
                                   return _buildRoomElement(
-                                    snapshot.data!.rooms[index].label,
-                                    snapshot.data!.devices,
-                                  );
+                                      _floors[_floorIndex].rooms[index], index);
                                 }),
                           ),
                         ),
@@ -144,66 +149,64 @@ class _EditSiteMapState extends State<EditSiteMap> {
                             child: ListView.builder(
                                 shrinkWrap: true,
                                 scrollDirection: Axis.vertical,
-                                itemCount: snapshot.data!.rooms.length,
+                                itemCount: _floors[_floorIndex].rooms.length,
                                 itemBuilder: (context, index) {
                                   return _buildRoomElement(
-                                    snapshot.data!.rooms[index].label,
-                                    snapshot.data!.devices,
-                                  );
+                                      _floors[_floorIndex].rooms[index], index);
                                 }),
                           ),
                         ),
                       ),
                     ),
                   ],
-                );
-              } else {
-                return const Center(child: CircularProgressIndicator());
-              }
-            }),
-      ),
+                )),
     ));
   }
 
-  Widget _buildFloorElement(String floor) {
-    return Container(
-      //height: MediaQuery.of(context).size.height * 0.03,
-      width: MediaQuery.of(context).size.width * 0.1,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          //const Icon(Icons.home, size: 50, color: Colors.white),
-          Text(
+  Widget _buildFloorElement(String floor, int index) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20.0),
+      child: Container(
+        height: 52,
+        width: MediaQuery.of(context).size.width * 0.15,
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: TextButton(
+          onPressed: () {
+            setState(() {
+              _floorIndex = index;
+            });
+          },
+          child: Text(
             floor,
             style: const TextStyle(
-              fontSize: 20,
               color: Colors.white,
+              fontSize: 20,
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildRoomElement(String room, List<Device> devices) {
+  Widget _buildRoomElement(Room room, int index) {
     return Padding(
-      padding: const EdgeInsets.only(left: 120.0, right: 120.0, bottom: 10.0),
+      padding: const EdgeInsets.only(left: 100.0, right: 100.0, bottom: 10.0),
       child: Column(
         children: [
           Container(
             height: 52,
-            width: MediaQuery.of(context).size.width * 0.4,
+            width: MediaQuery.of(context).size.width * 0.5,
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.circular(20),
             ),
             child: TextButton(
               onPressed: () {},
               child: Text(
-                room,
+                room.label,
                 style: const TextStyle(
                   fontSize: 20,
                   color: Colors.white,
@@ -211,56 +214,78 @@ class _EditSiteMapState extends State<EditSiteMap> {
               ),
             ),
           ),
-          _buildDeviceBox(devices, room)
+          _buildDeviceBox(room.devices, index),
         ],
       ),
     );
   }
 
-  Widget _buildDeviceBox(List<Device> devices, String room) {
-    List<Device> _devices = [];
-    for (var i = 0; i < devices.length; i++) {
-      if (devices[i].key == room) {
-        _devices.add(devices[i]);
-      }
-    }
+  Widget _buildDeviceBox(List<Device> devices, int index) {
+    /// Hier eine Kopie der Devices erstellen, damit die Reihenfolge verändert werden kann
+    List<Device> devicesCopy = devices.toList();
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.4,
+        //height: MediaQuery.of(context).size.height * 0.2,
+        width: MediaQuery.of(context).size.width * 0.5,
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: Theme.of(context).primaryColor,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Padding(
-          padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
-          child: ListView.builder(
+            padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
+            child: ReorderableListView(
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+              buildDefaultDragHandles: false,
               shrinkWrap: true,
-              itemCount: _devices.length,
-              itemBuilder: (context, index) {
-                return _buildDeviceElement(_devices[index].label);
-              }),
-        ),
+              children: [
+                for (final items in devicesCopy)
+                  Card(
+                    color: Colors.blueGrey,
+                    key: ValueKey(items),
+                    elevation: 2,
+                    child: TextButton(
+                      onPressed: () {},
+                      child: ListTile(
+                        trailing: ReorderableDragStartListener(
+                          index: devices.indexOf(items),
+                          child: const Icon(Icons.drag_handle),
+                        ),
+                        title: Text(items.label),
+                        leading: Icon(
+                          Icons.work,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ), //_buildDeviceElement(items.label)
+              ],
+              onReorder: reorderData(index),
+            )),
       ),
     );
   }
 
   Widget _buildDeviceElement(String device) {
     return Padding(
-      padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 15.0),
+      key: ValueKey(device),
+      padding: const EdgeInsets.only(
+          left: 40.0, right: 0.0, bottom: 10.0, top: 10.0),
       child: Container(
         height: 52,
-        width: MediaQuery.of(context).size.width * 0.2,
+        width: MediaQuery.of(context).size.width * 0.3,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.orangeAccent),
         ),
-        child: Text(
-          device,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 20,
-            color: Colors.white,
+        child: Center(
+          child: Text(
+            device,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+            ),
           ),
         ),
       ),

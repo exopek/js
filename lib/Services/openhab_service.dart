@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:visu/Models/models.dart';
 
@@ -16,14 +17,14 @@ class OpenhabServices {
     }
   }
 
-  Future<Floor> getSiteMap() async {
+  Future<List<Floor>> getSiteMap() async {
     Uri uri = Uri.parse('controller/api/load.php');
     List _subStrings = [];
+    List<Floor> _result = [];
     Map<String, List> _floors = {
       'names': [],
       'icons': [],
       'rooms': [],
-      'devices': []
     };
     String _floorKey = '';
     String _roomKey = '';
@@ -51,9 +52,9 @@ class OpenhabServices {
               _floors['icons']!.add('');
             }
           } else {
-            _floors['names']!.add('Alles');
+            _floors['names']!.add('Alle schalbaren Elemente');
             _floors['icons']!.add(' ');
-            _floorKey = 'no floor';
+            _floorKey = 'Alle schalbaren Elemente';
           }
         }
 
@@ -72,6 +73,7 @@ class OpenhabServices {
                 label: subString.substring(endLabel + 1, startIcon),
                 icon: subString.substring(endIcon + 1, endLine),
                 key: _floorKey.toString(), // Kopie des Wertes mit toString()
+                devices: [],
               );
               _floors['rooms']!.add(room);
             } else {
@@ -109,7 +111,12 @@ class OpenhabServices {
                     key: _roomKey,
                     function: subString.substring(hashIndex + 1, startItem),
                   );
-                  _floors['devices']!.add(device);
+                  //_floors['rooms']!.add(device);
+                  _floors['rooms']!
+                      .where((element) => element.label == _roomKey)
+                      .first
+                      .devices
+                      .add(device);
                 } else {
                   device = Device(
                     label:
@@ -118,7 +125,11 @@ class OpenhabServices {
                     key: _roomKey,
                     function: subString.substring(hashIndex + 1, startItem),
                   );
-                  _floors['devices']!.add(device);
+                  _floors['rooms']!
+                      .where((element) => element.label == _roomKey)
+                      .first
+                      .devices
+                      .add(device);
                 }
               } else {
                 if (subString.contains('icon')) {
@@ -132,7 +143,11 @@ class OpenhabServices {
                     key: _roomKey,
                     function: subString.substring(hashIndex + 1, startItem),
                   );
-                  _floors['devices']!.add(device);
+                  _floors['rooms']!
+                      .where((element) => element.label == _roomKey)
+                      .first
+                      .devices
+                      .add(device);
                 } else {
                   device = Device(
                     label:
@@ -141,7 +156,11 @@ class OpenhabServices {
                     key: _roomKey,
                     function: subString.substring(hashIndex + 1, startItem),
                   );
-                  _floors['devices']!.add(device);
+                  _floors['rooms']!
+                      .where((element) => element.label == _roomKey)
+                      .first
+                      .devices
+                      .add(device);
                 }
               }
             } else {
@@ -169,7 +188,32 @@ class OpenhabServices {
       });
       */
       //print(_subStrings);
-      return Floor.fromMap(_floors);
+
+      /// Eigentlich muss eine Liste von Floor-Objekten zurückgegeben werden
+      print(_floors['rooms']![0].label);
+      print(_floors['rooms']![0].devices[1].label);
+      print(_floors['rooms']![1].label);
+      print(_floors['rooms']![1].devices[1].label);
+
+      for (int i = 0; i < _floors['names']!.length; i++) {
+        Floor _tmpFloor = Floor(
+            name: _floors['names']![i], icon: _floors['icons']![i], rooms: []);
+        _floors['rooms']!.forEach((room) {
+          if (room.key == _floors['names']![i]) {
+            _tmpFloor.rooms.add(room);
+          }
+        });
+        _result.add(_tmpFloor);
+      }
+      ;
+
+      print(_result[0].name);
+      print(_result[0].rooms[0].label);
+      print(_result[0].rooms[0].devices[1].label);
+      print(_result[1].name);
+      print(_result[1].rooms[0].label);
+      print(_result[1].rooms[0].devices[1].label);
+      return _result;
     } else {
       throw 'unable to receive data.';
     }
