@@ -78,6 +78,9 @@ flutter:
     - assets/issendorff.png
     - assets/basicui.png
     - assets/habpanel.png
+    - assets/icons/relais.png
+    - assets/icons/slider.png
+    - assets/icons/temperature.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

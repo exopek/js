@@ -113,8 +113,23 @@ class Room {
     return {'label': label, 'icon': icon, 'key': key, 'devices': devices};
   }
 
-  updateDevices(List<Device> devices) {
-    this.devices = devices;
+  updateDevices(int newIndex, int oldIndex) {
+    List<Device> temp = [];
+    Device tempDevice = this.devices[oldIndex];
+    this.devices.removeAt(oldIndex);
+
+    /// Update the device at the given index
+    for (int i = 0; i < this.devices.length + 1; i++) {
+      if (i < newIndex) {
+        temp.add(this.devices[i]); // Copy Value to temp
+      } else if (i == newIndex) {
+        temp.add(tempDevice);
+      } else {
+        temp.add(this.devices[i - 1]);
+      }
+    }
+    this.devices = temp.toList();
+    temp = [];
   }
 
   factory Room.clear() {
@@ -128,12 +143,12 @@ class Room {
 }
 
 class Device {
-  final String label;
-  final String? icon;
+  String label;
+  String? icon;
   final String item;
-  final String? step;
-  final String function;
-  final String key;
+  String? step;
+  String function;
+  String key;
 
   Device(
       {required this.label,
@@ -142,6 +157,10 @@ class Device {
       this.step,
       required this.key,
       required this.function});
+
+  updateIcon(String icon) {
+    this.icon = icon;
+  }
 
   Map<String, dynamic> toMap() {
     return {
