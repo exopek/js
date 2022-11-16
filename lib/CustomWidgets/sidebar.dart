@@ -13,31 +13,29 @@ class SideMenu extends StatefulWidget {
 }
 
 class _SideMenuState extends State<SideMenu> {
-  List _sideBarContent = ['','Dashboard', 'Openhab', 'Einstellungen'];
+  List _sideBarContent = ['', 'Dashboard', 'Einstellungen'];
 
   @override
   Widget build(BuildContext context) {
     var menuController = Provider.of<MenuController>(context);
     return Drawer(
-      child: ListView.builder(
-              itemCount: 4,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return const DrawerHeader(
-                    child: Image(image: AssetImage('assets/issendorff.png')),
-                  );
-                } else {
-                  return DrawerListTile(
-                      title: _sideBarContent[index],
-                      press: () {
-                        menuController.setMenuIndex(index);
-                        menuController.setShowSettingsContentStatus(false);
-                      });
-                }
-
+        child: ListView.builder(
+            itemCount: 3,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return const DrawerHeader(
+                  child: Image(image: AssetImage('assets/issendorff.png')),
+                );
+              } else {
+                return DrawerListTile(
+                    title: _sideBarContent[index],
+                    press: () {
+                      menuController.setMenuIndex(index);
+                      menuController.setShowSettingsContentStatus(false);
+                    });
               }
-          )
-          /*
+            })
+        /*
           DrawerListTile(
             title: "Dashboard",
             //svgSrc: "assets/icons/menu_dashbord.svg",
@@ -55,7 +53,7 @@ class _SideMenuState extends State<SideMenu> {
           ),
           */
 
-    );
+        );
   }
 }
 
@@ -64,7 +62,7 @@ class DrawerListTile extends StatelessWidget {
     Key? key,
     // For selecting those three line once press "Command+D"
     required this.title,
-  //required this.svgSrc,
+    //required this.svgSrc,
     required this.press,
   }) : super(key: key);
 

@@ -16,14 +16,17 @@ class EditSiteMap extends StatefulWidget {
 
 class _EditSiteMapState extends State<EditSiteMap> {
   late List<Floor> _floors;
+  late List<Room> _rooms;
   late bool _isLoading;
   late int _floorIndex;
   late int _roomIndex;
   late int _selectedDevice;
+  late String _newRoom;
   late String _selectetdType;
   late String _selectedIcon;
   late Map<String, List> _possibleLabels;
   late TextEditingController _deviceNameController;
+  ValueNotifier<bool> _deviceSaved = ValueNotifier(false);
 
   List<String> item = [
     "GeeksforGeeks",
@@ -64,11 +67,239 @@ class _EditSiteMapState extends State<EditSiteMap> {
     'Jalousie': 'Default',
   };
 
+  /// Change Name, Icon and Room of a Device
   void _showChangeDeviceAttributes() {
     showDialog(
         barrierDismissible: false,
         context: context,
-        builder: (BuildContext context) => Dialog(
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Dialog(
+              backgroundColor: Color.fromRGBO(25, 30, 30, 1.0).withOpacity(0.4),
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.5,
+                width: MediaQuery.of(context).size.width * 0.30,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 40.0, right: 40.0),
+                      child: Text(
+                        'Item ändern',
+                        style: TextStyle(fontSize: 20.0, color: Colors.white),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: Text('Name:',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white)),
+                        ),
+                        TextField(
+                          controller: _deviceNameController,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: _floors[_floorIndex]
+                                .rooms[_roomIndex]
+                                .devices[_selectedDevice]
+                                .label,
+                            hintStyle:
+                                TextStyle(fontSize: 20.0, color: Colors.grey),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text('Icon:',
+                            style:
+                                TextStyle(fontSize: 20.0, color: Colors.white)),
+
+                        /// Es soll der aktuelle Icon angezeigt werden
+                        if (_selectedIcon != '') ...[
+                          ImageIcon(
+                              AssetImage(
+                                  icons[_selectedIcon]!), // Device mit Icon
+                              size: 50.0,
+                              color: Colors.white),
+                        ] else ...[
+                          ImageIcon(
+                              AssetImage(icons[_floors[_floorIndex]
+                                      .rooms[_roomIndex]
+                                      .devices[_selectedDevice]
+                                      .icon] ??
+                                  'assets/icons/slider.png'), // Device mit Icon
+                              size: 50.0,
+                              color: Colors.white),
+                        ],
+
+                        DropdownButton(
+                            style: TextStyle(
+                                fontSize: 20.0,
+                                color: Colors.white,
+                                backgroundColor:
+                                    Theme.of(context).primaryColor),
+                            items: icons.keys
+                                .map((String key) => DropdownMenuItem(
+                                      value: key,
+                                      child: Text(key),
+                                    ))
+                                .toList(),
+                            icon: const Icon(Icons.arrow_downward),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedIcon = newValue!;
+                              });
+                            })
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text('Verschieben in Raum:',
+                            style:
+                                TextStyle(fontSize: 20.0, color: Colors.white)),
+                        DropdownButton(
+                            style: TextStyle(
+                                fontSize: 20.0,
+                                color: Colors.white,
+                                backgroundColor:
+                                    Theme.of(context).primaryColor),
+                            items: _getRooms()
+                                .map((Room room) => DropdownMenuItem(
+                                      value: room,
+                                      child: Text(room.label),
+                                    ))
+                                .toList(),
+                            icon: const Icon(Icons.arrow_downward),
+                            onChanged: (Room? newValue) {
+                              setState(() {
+                                /// _newRoom als String um dann in der Floor Liste danach zu suchen
+                                _newRoom = newValue!.label;
+                              });
+                            })
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton(
+                          style: ButtonStyle(
+                              overlayColor: MaterialStateProperty.all(
+                                  Colors.grey.withOpacity(0.4)),
+                              side: MaterialStateProperty.all(
+                                  BorderSide(color: Colors.orangeAccent))),
+                          onPressed: () {
+                            setState(() {
+                              if (_newRoom != '') {
+                                List<int> _floorAndRoomIndex =
+                                    _getRoomIndex(_newRoom);
+
+                                /// Room Key ändern
+                                _floors[_floorIndex]
+                                    .rooms[_roomIndex]
+                                    .devices[_selectedDevice]
+                                    .key = _newRoom;
+
+                                /// Name ändern
+                                _floors[_floorIndex]
+                                    .rooms[_roomIndex]
+                                    .devices[_selectedDevice]
+                                    .label = _deviceNameController.text;
+
+                                /// Icon ändern
+                                _floors[_floorIndex]
+                                    .rooms[_roomIndex]
+                                    .devices[_selectedDevice]
+                                    .icon = _selectedIcon;
+
+                                /// Device in neuen Room verschieben
+                                _floors[_floorAndRoomIndex[0]]
+                                    .rooms[_floorAndRoomIndex[1]]
+                                    .devices
+                                    .add(_floors[_floorIndex]
+                                        .rooms[_roomIndex]
+                                        .devices[_selectedDevice]);
+
+                                /// Device aus altem Room löschen
+                                _floors[_floorIndex]
+                                    .rooms[_roomIndex]
+                                    .devices
+                                    .removeAt(_selectedDevice);
+                              } else {
+                                /// Name ändern
+                                _floors[_floorIndex]
+                                    .rooms[_roomIndex]
+                                    .devices[_selectedDevice]
+                                    .label = _deviceNameController.text;
+
+                                /// Icon ändern
+                                _floors[_floorIndex]
+                                    .rooms[_roomIndex]
+                                    .devices[_selectedDevice]
+                                    .icon = _selectedIcon;
+                              }
+
+                              /// Bereinigung
+                              _deviceNameController.clear();
+                              _selectedIcon = '';
+                              _newRoom = '';
+                              _deviceSaved.value = true;
+                              Navigator.pop(context);
+                            });
+                          },
+                          child: Text(
+                            'Speichern',
+                            style: TextStyle(
+                                fontFamily: 'FiraSansExtraCondensed',
+                                fontSize: 20.0,
+                                color: Colors.white),
+                          ),
+                        ),
+                        TextButton(
+                          style: ButtonStyle(
+                              overlayColor: MaterialStateProperty.all(
+                                  Colors.grey.withOpacity(0.4)),
+                              side: MaterialStateProperty.all(
+                                  BorderSide(color: Colors.red))),
+                          onPressed: () {
+                            _deviceNameController.clear();
+                            _selectedIcon = '';
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            'Abbrechen',
+                            style: TextStyle(
+                                fontFamily: 'FiraSansExtraCondensed',
+                                fontSize: 20.0,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 5.0,
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
+  void _showCreateDevice() {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Dialog(
               backgroundColor: Color.fromRGBO(25, 30, 30, 1.0).withOpacity(0.4),
               child: Container(
                 height: MediaQuery.of(context).size.height * 0.5,
@@ -109,13 +340,13 @@ class _EditSiteMapState extends State<EditSiteMap> {
                               setState(() {
                                 // Muss hier schon gesetzt werden
                                 /*
-                                _floors[_floorIndex]
-                                    .rooms[_roomIndex]
-                                    .devices[_selectedDevice]
-                                    .function = newValue!;
-                                    */
+                                    _floors[_floorIndex]
+                                        .rooms[_roomIndex]
+                                        .devices[_selectedDevice]
+                                        .function = newValue!;
+                                        */
                                 _selectetdType = newValue!;
-                                _possibleLabels = _getDeviceLabels(newValue!);
+                                _possibleLabels = _getDeviceItems(newValue!);
                               });
                             })
                       ],
@@ -192,20 +423,20 @@ class _EditSiteMapState extends State<EditSiteMap> {
                                 color: Colors.white,
                                 backgroundColor:
                                     Theme.of(context).primaryColor),
-                            items: _possibleLabels.keys
-                                .map((String key) => DropdownMenuItem(
-                                      value: key,
-                                      child: Text(key),
+                            items: _possibleLabels.entries
+                                .map((MapEntry device) => DropdownMenuItem(
+                                      value: device,
+                                      child: Text(device.key),
                                     ))
                                 .toList(),
                             icon: const Icon(Icons.arrow_downward),
-                            onChanged: (String? newValue) {
+                            onChanged: (MapEntry? newValue) {
                               setState(() {
                                 // Muss hier schon gesetzt werden
                                 _floors[_floorIndex]
                                     .rooms[_roomIndex]
                                     .devices[_selectedDevice]
-                                    .function = newValue!;
+                                    .function = newValue!.key;
                               });
                             })
                       ],
@@ -262,11 +493,13 @@ class _EditSiteMapState extends State<EditSiteMap> {
                   ],
                 ),
               ),
-            ));
+            );
+          });
+        });
   }
 
-  Map<String, List> _getDeviceLabels(String type) {
-    Map<String, List> labels = {};
+  Map<String, List> _getDeviceItems(String type) {
+    Map<String, List> items = {};
 
     _floors.forEach((floor) {
       // element = Floor
@@ -275,12 +508,44 @@ class _EditSiteMapState extends State<EditSiteMap> {
         room.devices.forEach((device) {
           // element = Device
           if (device.function == type) {
-            labels[device.label] = [room.label, floor.name];
+            items[device.item] = [
+              device.label,
+              device.function,
+              room.label,
+              floor.name
+            ];
           }
         });
       });
     });
-    return labels;
+    return items;
+  }
+
+  /// Get Index of new Room in Floor
+  List<int> _getRoomIndex(String roomName) {
+    List<int> index = [];
+    _floors.forEach((floor) {
+      // element = Floor
+      floor.rooms.forEach((room) {
+        // element = Room
+        if (room.label == roomName) {
+          index.add(_floors.indexOf(floor));
+          index.add(floor.rooms.indexOf(room));
+        }
+      });
+    });
+    return index;
+  }
+
+  /// Get List of all Rooms
+  List<Room> _getRooms() {
+    List<Room> rooms = [];
+    for (int i = 0; i < _floors.length; i++) {
+      for (int j = 0; j < _floors[i].rooms.length; j++) {
+        rooms.add(_floors[i].rooms[j]);
+      }
+    }
+    return rooms;
   }
 
   void reorderData(int oldindex, int newindex) {
@@ -300,8 +565,19 @@ class _EditSiteMapState extends State<EditSiteMap> {
     _selectedDevice = 0;
     _selectedIcon = '';
     _selectetdType = '';
+    _newRoom = '';
     _possibleLabels = {};
     _deviceNameController = TextEditingController();
+
+    /// setState if _saved is true
+    _deviceSaved.addListener(() {
+      if (_deviceSaved.value == true) {
+        setState(() {
+          _deviceSaved.value = false;
+        });
+      }
+    });
+
     OpenhabServices().getSiteMap().then((value) {
       print('InitState: $value');
       setState(() {

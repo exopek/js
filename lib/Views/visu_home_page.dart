@@ -19,7 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Widget> dashContent = [Container(), Dashboard(), Openhab(), Settings()];
+  List<Widget> dashContent = [Dashboard(), Dashboard(), Settings()];
   List<Widget> settingsContent = [
     Container(
       color: Colors.green,

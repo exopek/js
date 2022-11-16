@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:visu/CustomWidgets/header.dart';
 import 'package:visu/Responsive/responsive.dart';
+import 'package:webviewx/webviewx.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -10,6 +11,14 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  //late WebViewXController webviewController;
+
+  @override
+  void initState() {
+    super.initState();
+    // TODO: implement initState
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size _size = MediaQuery.of(context).size;
@@ -26,18 +35,12 @@ class _DashboardState extends State<Dashboard> {
                 children: [
                   Expanded(
                     child: Responsive(
-                      mobile: _grid(context,
-                          crossAxisCount: _size.width < 650 ? 2 : 4,
-                          childAspectRatio: _size.width < 650 ? 1.3 : 1,
-                          defaultPadding: 16.0),
-                      tablet: _grid(context,
-                          crossAxisCount: 4,
-                          childAspectRatio: 1,
-                          defaultPadding: 16.0),
-                      desktop: _grid(context,
-                          childAspectRatio: _size.width < 1400 ? 1.1 : 1.4,
-                          crossAxisCount: 4,
-                          defaultPadding: 16.0),
+                      mobile: _openhabWebView(
+                          context, 'http://192.168.0.62:8080/basicui/app'),
+                      tablet: _openhabWebView(
+                          context, 'http://192.168.0.62:8080/basicui/app'),
+                      desktop: _openhabWebView(
+                          context, 'http://192.168.0.62:8080/basicui/app'),
                     ),
                   ),
                 ],
@@ -48,6 +51,22 @@ class _DashboardState extends State<Dashboard> {
       )),
     );
   }
+}
+
+Widget _openhabWebView(BuildContext context, String url) {
+  return Container(
+    height: MediaQuery.of(context).size.height,
+    width: MediaQuery.of(context).size.width,
+    child: WebViewX(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      initialContent: '<h1>OpenHAB</h1>',
+      javascriptMode: JavascriptMode.unrestricted,
+      onWebViewCreated: (controller) {
+        controller.loadContent(url, SourceType.url);
+      },
+    ),
+  );
 }
 
 Widget _grid(BuildContext context,
