@@ -98,8 +98,8 @@ class Floor {
 }
 
 class Room {
-  final String label;
-  final String icon;
+  String label;
+  String icon;
   final String key;
   List<Device> devices;
 

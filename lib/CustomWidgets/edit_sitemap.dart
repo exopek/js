@@ -26,6 +26,7 @@ class _EditSiteMapState extends State<EditSiteMap> {
   late String _selectedIcon;
   late Map<String, List> _possibleLabels;
   late TextEditingController _deviceNameController;
+  late ScrollController _scrollController;
   ValueNotifier<bool> _deviceSaved = ValueNotifier(false);
 
   List<String> item = [
@@ -52,10 +53,34 @@ class _EditSiteMapState extends State<EditSiteMap> {
         label: 'Device 5', item: 'Item 5', key: 'Room 2', function: 'Switch'),
   ];
 
-  Map<String, String> icons = {
-    'Slider': 'assets/icons/slider.png',
-    'Relais': 'assets/icons/relais.png',
-    'temperature': 'assets/icons/temperature.png',
+  Map<String, List<String>> icons = {
+    'slider': ['assets/icons/slider.png', 'slider'],
+    'relais': ['assets/icons/relais.png', 'relais'],
+    'temperature': ['assets/icons/temperature.png', 'temperature'],
+    'window': ['assets/icons/window.png', 'window'],
+    'switch': ['assets/icons/switch.png', 'switch'],
+    'regler': ['assets/icons/regler.png', 'regler'],
+    'regler_sperre': ['assets/icons/regler_sperre.png', 'regler_sperre'],
+    'light': ['assets/icons/light.png', 'light'],
+    'rollershutter': ['assets/icons/rollershutter.png', 'rollershutter'],
+    'humidity': ['assets/icons/humidity.png', 'humidity'],
+    'motion': ['assets/icons/motion.png', 'motion'],
+    'kidsroom_icon': ['assets/icons/kidsroom.png', 'kidsroom_icon'],
+    'bath': ['assets/icons/bath.png', 'bath'],
+    'bedroom': ['assets/icons/bedroom.png', 'bedroom'],
+    'kitchen': ['assets/icons/kitchen.png', 'kitchen'],
+    'changingroom': ['assets/icons/changingroom.png', 'changingroom'],
+    'diningroom': ['assets/icons/diningroom.png', 'diningroom'],
+    'corridor': ['assets/icons/corridor.png', 'corridor'],
+    'vk': ['assets/icons/vk.png', 'vk'],
+    'door': ['assets/icons/door.png', 'door'],
+    'office': ['assets/icons/office.png', 'office'],
+    'terrace': ['assets/icons/terrace.png', 'terrace'],
+    'party': ['assets/icons/party.png', 'party'],
+    'toilet': ['assets/icons/toilet.png', 'toilet'],
+    'garden': ['assets/icons/garden.png', 'garden'],
+    'suitcase': ['assets/icons/suitcase.png', 'suitcase'],
+    'pantry': ['assets/icons/pantry.png', 'pantry'],
   };
 
   Map<String, String> types = {
@@ -67,23 +92,344 @@ class _EditSiteMapState extends State<EditSiteMap> {
     'Jalousie': 'Default',
   };
 
-  /// Change Name, Icon and Room of a Device
-  void _showChangeDeviceAttributes() {
+  List<Floor> _floorDummy = [
+    Floor(
+      icon: 'assets/icons/light.png',
+      name: 'Floor 1',
+      rooms: [
+        Room(
+            icon: 'bedroom',
+            label: '"Room 1"',
+            devices: [
+              Device(
+                  icon: 'light',
+                  label: '"Device 1"',
+                  item: 'Item 1',
+                  key: 'Room 1',
+                  function: 'Switch'),
+              Device(
+                  icon: 'switch',
+                  label: '"Device 2"',
+                  item: 'Item 2',
+                  key: 'Room 1',
+                  function: 'Switch'),
+              Device(
+                  icon: 'slider',
+                  label: '"Device 3"',
+                  item: 'Item 3',
+                  key: 'Room 1',
+                  function: 'Switch'),
+            ],
+            key: 'Floor 1'),
+        Room(
+            icon: 'kitchen',
+            label: '"Room 2"',
+            devices: [
+              Device(
+                  icon: 'switch',
+                  label: '"Device 4"',
+                  item: 'Item 4',
+                  key: 'Room 2',
+                  function: 'Switch'),
+              Device(
+                  icon: 'temperature',
+                  label: '"Device 5"',
+                  item: 'Item 5',
+                  key: 'Room 2',
+                  function: 'Switch'),
+            ],
+            key: 'Floor 1'),
+      ],
+    ),
+    Floor(
+      icon: 'garden',
+      name: 'Floor 2',
+      rooms: [
+        Room(
+            icon: 'changingroom',
+            label: '"Room 3"',
+            devices: [
+              Device(
+                  icon: 'motion',
+                  label: '"Device 6"',
+                  item: 'Item 6',
+                  key: 'Room 3',
+                  function: 'Switch'),
+              Device(
+                  icon: 'light',
+                  label: '"Device 7"',
+                  item: 'Item 7',
+                  key: 'Room 3',
+                  function: 'Switch'),
+              Device(
+                  icon: 'rollershutter',
+                  label: '"Device 8"',
+                  item: 'Item 8',
+                  key: 'Room 3',
+                  function: 'Switch'),
+            ],
+            key: 'Floor 2'),
+        Room(
+            icon: 'diningroom',
+            label: '"Room 4"',
+            devices: [
+              Device(
+                  icon: 'switch',
+                  label: '"Device 9"',
+                  item: 'Item 9',
+                  key: 'Room 4',
+                  function: 'Switch'),
+              Device(
+                  icon: 'relais',
+                  label: '"Device 10"',
+                  item: 'Item 10',
+                  key: 'Room 4',
+                  function: 'Switch'),
+            ],
+            key: 'Floor 2'),
+      ],
+    ),
+  ];
+
+  void _showChangeRoomAttributes(int index) {
+    /// comment showdialog
+
     showDialog(
         barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return Dialog(
-              backgroundColor: Color.fromRGBO(25, 30, 30, 1.0).withOpacity(0.4),
+              backgroundColor: Color.fromRGBO(25, 30, 30, 1.0).withOpacity(0.5),
               child: Container(
                 height: MediaQuery.of(context).size.height * 0.5,
                 width: MediaQuery.of(context).size.width * 0.30,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 30.0),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _floors[_floorIndex].rooms.removeAt(index);
+                              });
+                              _isLoading = true;
+                              _deviceSaved.value = true;
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            )),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 40.0, right: 40.0),
+                      child: Text(
+                        'Raum ändern',
+                        style: TextStyle(fontSize: 20.0, color: Colors.white),
+                      ),
+                    ),
+                    Row(
+                      //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: Text('Label:',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white)),
+                        ),
+
+                        /// show String without first and last character
+                        SizedBox(
+                          width: 200.0,
+                          child: TextField(
+                            controller: _deviceNameController,
+                            style: TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: _floors[_floorIndex]
+                                  .rooms[_roomIndex]
+                                  .label
+                                  .substring(
+                                      1,
+                                      _floors[_floorIndex]
+                                              .rooms[index]
+                                              .label
+                                              .length -
+                                          1),
+                              hintStyle:
+                                  TextStyle(fontSize: 20.0, color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: Text('Icon:',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white)),
+                        ),
+
+                        /// Es soll der aktuelle Icon angezeigt werden
+                        if (_selectedIcon != '') ...[
+                          SizedBox(
+                            width: 50.0,
+                            child: Image.asset(icons[_selectedIcon]![0]),
+                          ), // Device mit Icon
+                        ] else ...[
+                          SizedBox(
+                            width: 50.0,
+                            child: Image.asset(
+                              icons[_floors[_floorIndex].rooms[index].icon]![
+                                      0] ??
+                                  'assets/icons/slider.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ), // Default Icon
+                          /*color: Colors.white*/
+                        ],
+
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0),
+                          child: DropdownButton(
+                              style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.white,
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor),
+                              items: icons.keys
+                                  .map((String key) => DropdownMenuItem(
+                                        value: key,
+                                        child: Text(key),
+                                      ))
+                                  .toList(),
+                              icon: const Icon(Icons.arrow_downward),
+                              hint: Text(_selectedIcon == ''
+                                  ? _floors[_floorIndex].rooms[index].icon
+                                  : _selectedIcon),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  print(_selectedIcon);
+                                  _selectedIcon = newValue!;
+                                });
+                              }),
+                        )
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton(
+                          style: ButtonStyle(
+                              overlayColor: MaterialStateProperty.all(
+                                  Colors.grey.withOpacity(0.4)),
+                              side: MaterialStateProperty.all(
+                                  BorderSide(color: Colors.orangeAccent))),
+                          onPressed: () {
+                            setState(() {
+                              if (_selectedIcon != '') {
+                                _floors[_floorIndex].rooms[index].icon =
+                                    _selectedIcon;
+                              }
+                              if (_deviceNameController.text.isNotEmpty) {
+                                _floors[_floorIndex].rooms[index].label =
+                                    '"' + _deviceNameController.text + '"';
+                              }
+
+                              /// Bereinigung
+                              _deviceNameController.clear();
+                              _isLoading = true;
+                              _selectedIcon = '';
+                              _newRoom = '';
+                              _deviceSaved.value = true;
+                              Navigator.pop(context);
+                            });
+                          },
+                          child: Text(
+                            'Speichern',
+                            style: TextStyle(
+                                fontFamily: 'FiraSansExtraCondensed',
+                                fontSize: 20.0,
+                                color: Colors.white),
+                          ),
+                        ),
+                        TextButton(
+                          style: ButtonStyle(
+                              overlayColor: MaterialStateProperty.all(
+                                  Colors.grey.withOpacity(0.4)),
+                              side: MaterialStateProperty.all(
+                                  BorderSide(color: Colors.red))),
+                          onPressed: () {
+                            _deviceNameController.clear();
+                            _selectedIcon = '';
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            'Abbrechen',
+                            style: TextStyle(
+                                fontFamily: 'FiraSansExtraCondensed',
+                                fontSize: 20.0,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
                     SizedBox(
-                      height: 10.0,
+                      height: 5.0,
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
+
+  /// Change Name, Icon and Room of a Device
+  void _showChangeDeviceAttributes() {
+    /// comment showdialog
+
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Dialog(
+              backgroundColor: Color.fromRGBO(25, 30, 30, 1.0).withOpacity(0.5),
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.5,
+                width: MediaQuery.of(context).size.width * 0.30,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 30.0),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _floors[_floorIndex]
+                                    .rooms[_roomIndex]
+                                    .devices
+                                    .removeAt(_selectedDevice);
+                              });
+                              _isLoading = true;
+                              _deviceSaved.value = true;
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            )),
+                      ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 40.0, right: 40.0),
@@ -93,7 +439,43 @@ class _EditSiteMapState extends State<EditSiteMap> {
                       ),
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: Text('Label:',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white)),
+                        ),
+
+                        /// show String without first and last character
+                        SizedBox(
+                          width: 200.0,
+                          child: TextField(
+                            controller: _deviceNameController,
+                            style: TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: _floors[_floorIndex]
+                                  .rooms[_roomIndex]
+                                  .devices[_selectedDevice]
+                                  .label
+                                  .substring(
+                                      1,
+                                      _floors[_floorIndex]
+                                              .rooms[_roomIndex]
+                                              .devices[_selectedDevice]
+                                              .label
+                                              .length -
+                                          1),
+                              hintStyle:
+                                  TextStyle(fontSize: 20.0, color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Padding(
                           padding: EdgeInsets.only(left: 20.0, right: 20.0),
@@ -101,69 +483,77 @@ class _EditSiteMapState extends State<EditSiteMap> {
                               style: TextStyle(
                                   fontSize: 20.0, color: Colors.white)),
                         ),
-                        TextField(
-                          controller: _deviceNameController,
-                          style: TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: _floors[_floorIndex]
-                                .rooms[_roomIndex]
-                                .devices[_selectedDevice]
-                                .label,
-                            hintStyle:
-                                TextStyle(fontSize: 20.0, color: Colors.grey),
-                          ),
+                        SelectableText(
+                          _floors[_floorIndex]
+                              .rooms[_roomIndex]
+                              .devices[_selectedDevice]
+                              .item,
+                          style: TextStyle(color: Colors.grey, fontSize: 20.0),
                         ),
                       ],
                     ),
                     Row(
                       children: [
-                        Text('Icon:',
-                            style:
-                                TextStyle(fontSize: 20.0, color: Colors.white)),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: Text('Icon:',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white)),
+                        ),
 
                         /// Es soll der aktuelle Icon angezeigt werden
                         if (_selectedIcon != '') ...[
-                          ImageIcon(
-                              AssetImage(
-                                  icons[_selectedIcon]!), // Device mit Icon
-                              size: 50.0,
-                              color: Colors.white),
+                          Image.asset(
+                              icons[_selectedIcon]![0]), // Device mit Icon
                         ] else ...[
-                          ImageIcon(
-                              AssetImage(icons[_floors[_floorIndex]
-                                      .rooms[_roomIndex]
-                                      .devices[_selectedDevice]
-                                      .icon] ??
-                                  'assets/icons/slider.png'), // Device mit Icon
-                              size: 50.0,
-                              color: Colors.white),
+                          Image.asset(icons[_floors[_floorIndex]
+                                  .rooms[_roomIndex]
+                                  .devices[_selectedDevice]
+                                  .icon]![0] ??
+                              'assets/icons/slider.png'), // Device mit Icon
+                          /*color: Colors.white*/
                         ],
 
-                        DropdownButton(
-                            style: TextStyle(
-                                fontSize: 20.0,
-                                color: Colors.white,
-                                backgroundColor:
-                                    Theme.of(context).primaryColor),
-                            items: icons.keys
-                                .map((String key) => DropdownMenuItem(
-                                      value: key,
-                                      child: Text(key),
-                                    ))
-                                .toList(),
-                            icon: const Icon(Icons.arrow_downward),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedIcon = newValue!;
-                              });
-                            })
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0),
+                          child: DropdownButton(
+                              style: TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.white,
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor),
+                              items: icons.keys
+                                  .map((String key) => DropdownMenuItem(
+                                        value: key,
+                                        child: Text(key),
+                                      ))
+                                  .toList(),
+                              icon: const Icon(Icons.arrow_downward),
+                              hint: Text(_selectedIcon == ''
+                                  ? _floors[_floorIndex]
+                                      .rooms[_roomIndex]
+                                      .devices[_selectedDevice]
+                                      .icon!
+                                  : _selectedIcon),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  print(_selectedIcon);
+                                  _selectedIcon = newValue!;
+                                });
+                              }),
+                        )
                       ],
                     ),
                     Row(
                       children: [
-                        Text('Verschieben in Raum:',
-                            style:
-                                TextStyle(fontSize: 20.0, color: Colors.white)),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: Text('Verschieben in Raum:',
+                              style: TextStyle(
+                                  fontSize: 20.0, color: Colors.white)),
+                        ),
                         DropdownButton(
                             style: TextStyle(
                                 fontSize: 20.0,
@@ -207,16 +597,20 @@ class _EditSiteMapState extends State<EditSiteMap> {
                                     .key = _newRoom;
 
                                 /// Name ändern
-                                _floors[_floorIndex]
-                                    .rooms[_roomIndex]
-                                    .devices[_selectedDevice]
-                                    .label = _deviceNameController.text;
+                                if (_deviceNameController.text.isNotEmpty) {
+                                  _floors[_floorIndex]
+                                      .rooms[_roomIndex]
+                                      .devices[_selectedDevice]
+                                      .label = _deviceNameController.text;
+                                }
 
                                 /// Icon ändern
-                                _floors[_floorIndex]
-                                    .rooms[_roomIndex]
-                                    .devices[_selectedDevice]
-                                    .icon = _selectedIcon;
+                                if (_selectedIcon != '') {
+                                  _floors[_floorIndex]
+                                      .rooms[_roomIndex]
+                                      .devices[_selectedDevice]
+                                      .icon = _selectedIcon;
+                                }
 
                                 /// Device in neuen Room verschieben
                                 _floors[_floorAndRoomIndex[0]]
@@ -233,20 +627,27 @@ class _EditSiteMapState extends State<EditSiteMap> {
                                     .removeAt(_selectedDevice);
                               } else {
                                 /// Name ändern
-                                _floors[_floorIndex]
-                                    .rooms[_roomIndex]
-                                    .devices[_selectedDevice]
-                                    .label = _deviceNameController.text;
+                                print(_deviceNameController.text.toString());
+                                if (_deviceNameController.text.isNotEmpty) {
+                                  _floors[_floorIndex]
+                                          .rooms[_roomIndex]
+                                          .devices[_selectedDevice]
+                                          .label =
+                                      '"' + _deviceNameController.text + '"';
+                                }
 
                                 /// Icon ändern
-                                _floors[_floorIndex]
-                                    .rooms[_roomIndex]
-                                    .devices[_selectedDevice]
-                                    .icon = _selectedIcon;
+                                if (_selectedIcon != '') {
+                                  _floors[_floorIndex]
+                                      .rooms[_roomIndex]
+                                      .devices[_selectedDevice]
+                                      .icon = _selectedIcon;
+                                }
                               }
 
                               /// Bereinigung
                               _deviceNameController.clear();
+                              _isLoading = true;
                               _selectedIcon = '';
                               _newRoom = '';
                               _deviceSaved.value = true;
@@ -383,7 +784,7 @@ class _EditSiteMapState extends State<EditSiteMap> {
                             AssetImage(icons[_floors[_floorIndex]
                                     .rooms[_roomIndex]
                                     .devices[_selectedDevice]
-                                    .icon] ??
+                                    .icon]![0] ??
                                 'assets/icons/slider.png'), // Device mit Icon
                             size: 50.0,
                             color: Colors.white),
@@ -553,13 +954,15 @@ class _EditSiteMapState extends State<EditSiteMap> {
       if (newindex > oldindex) {
         newindex -= 1;
       }
-      _floors[_floorIndex].rooms[_roomIndex].updateDevices(newindex, oldindex);
+      _floors[_floorIndex]
+          .rooms[_roomIndex]
+          .updateDevices(newindex + 1, oldindex + 1);
     });
   }
 
   @override
   void initState() {
-    _isLoading = true;
+    _isLoading = false;
     _floorIndex = 0;
     _roomIndex = 0;
     _selectedDevice = 0;
@@ -568,16 +971,24 @@ class _EditSiteMapState extends State<EditSiteMap> {
     _newRoom = '';
     _possibleLabels = {};
     _deviceNameController = TextEditingController();
+    _scrollController = ScrollController(
+      initialScrollOffset: 200.0,
+      keepScrollOffset: true,
+    );
 
     /// setState if _saved is true
     _deviceSaved.addListener(() {
       if (_deviceSaved.value == true) {
         setState(() {
           _deviceSaved.value = false;
+          _isLoading = false;
         });
       }
     });
 
+    /// Initiate _floors
+    _floors = _floorDummy;
+    /*
     OpenhabServices().getSiteMap().then((value) {
       print('InitState: $value');
       setState(() {
@@ -585,6 +996,7 @@ class _EditSiteMapState extends State<EditSiteMap> {
         _isLoading = false;
       });
     });
+    */
     // TODO: implement initState
     super.initState();
   }
@@ -646,6 +1058,7 @@ class _EditSiteMapState extends State<EditSiteMap> {
                           padding: const EdgeInsets.only(top: 10.0),
                           child: SizedBox(
                             child: ListView.builder(
+                                //controller: _scrollController,
                                 shrinkWrap: true,
                                 scrollDirection: Axis.vertical,
                                 itemCount: _floors[_floorIndex]
@@ -663,6 +1076,7 @@ class _EditSiteMapState extends State<EditSiteMap> {
                           padding: const EdgeInsets.only(top: 50.0),
                           child: SizedBox(
                             child: ListView.builder(
+                                //controller: _scrollController,
                                 shrinkWrap: true,
                                 scrollDirection: Axis.vertical,
                                 itemCount: _floors[_floorIndex].rooms.length,
@@ -693,6 +1107,7 @@ class _EditSiteMapState extends State<EditSiteMap> {
           onPressed: () {
             setState(() {
               _floorIndex = index;
+              _roomIndex = 0;
             });
           },
           child: Text(
@@ -719,20 +1134,51 @@ class _EditSiteMapState extends State<EditSiteMap> {
               color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: TextButton(
-              onPressed: () {
-                setState(() {
-                  _roomIndex = index;
-                });
-              },
-              child: Text(
-                room.label,
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
+            child: Stack(children: [
+              Center(
+                child: SizedBox(
+                  height: 52,
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _roomIndex = index;
+                      });
+                    },
+                    child: Text(
+                      room.label.substring(1, room.label.length - 1),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 30.0),
+                  child: Image.asset(
+                      icons[_floors[_floorIndex].rooms[index].icon]![0] ??
+                          'assets/icons/slider.png'),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 30.0),
+                child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                        onPressed: () {
+                          _showChangeRoomAttributes(index);
+                        },
+                        icon: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                        ))),
+              )
+            ]),
           ),
           if (_roomIndex == index) _buildDeviceBox(room.devices, index),
         ],
@@ -741,8 +1187,9 @@ class _EditSiteMapState extends State<EditSiteMap> {
   }
 
   Widget _buildDeviceBox(List<Device> devices, int index) {
-    /// Hier eine Kopie der Devices erstellen, damit die Reihenfolge verändert werden kann
-    List<Device> devicesCopy = devices.toList();
+    /// Copy of devices starts at index 1
+
+    List<Device> devicesCopy = devices.sublist(1, devices.length);
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: Container(
@@ -759,30 +1206,29 @@ class _EditSiteMapState extends State<EditSiteMap> {
               buildDefaultDragHandles: false,
               shrinkWrap: true,
               children: [
-                for (final items in devices)
+                for (final items in devicesCopy)
                   Card(
                     color: Colors.blueGrey,
                     key: ValueKey(items),
                     elevation: 2,
                     child: TextButton(
                       onPressed: () {
-                        // TODO: Hier die Funktion für die Devices einfügen
                         // Änderung Name, Icon, etc.
                         _showChangeDeviceAttributes();
                         setState(() {
-                          _selectedDevice = devices.indexOf(items);
+                          _selectedDevice = devicesCopy.indexOf(items) + 1;
                         });
                       },
                       child: ListTile(
                         trailing: ReorderableDragStartListener(
-                          index: devices.indexOf(items),
+                          index: devicesCopy.indexOf(items),
                           child: const Icon(Icons.drag_handle),
                         ),
-                        title: Text(items.label),
-                        leading: Icon(
-                          Icons.work,
-                          color: Colors.black,
-                        ),
+                        title: Text(
+                            items.label.substring(1, items.label.length - 1)),
+                        leading: Image.asset(icons[items.icon]![0] ??
+                            'assets/icons/slider.png'), // Device mit Icon
+                        /*color: Colors.white*/
                       ),
                     ),
                   ), //_buildDeviceElement(items.label)

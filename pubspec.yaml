@@ -82,6 +82,30 @@ flutter:
     - assets/icons/relais.png
     - assets/icons/slider.png
     - assets/icons/temperature.png
+    - assets/icons/regler.png
+    - assets/icons/regler_sperre.png
+    - assets/icons/rollershutter.png
+    - assets/icons/window.png
+    - assets/icons/humidity.png
+    - assets/icons/light.png
+    - assets/icons/motion.png
+    - assets/icons/switch.png
+    - assets/icons/party.png
+    - assets/icons/toilet.png
+    - assets/icons/terrace.png
+    - assets/icons/office.png
+    - assets/icons/kitchen.png
+    - assets/icons/kidsroom.png
+    - assets/icons/garden.png
+    - assets/icons/door.png
+    - assets/icons/diningroom.png
+    - assets/icons/corridor.png
+    - assets/icons/changingroom.png
+    - assets/icons/bedroom.png
+    - assets/icons/bath.png
+    - assets/icons/vk.png
+    - assets/icons/suitcase.png
+    - assets/icons/pantry.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -11,7 +11,7 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  //late WebViewXController webviewController;
+  //late WebViewXController _webviewController;
 
   @override
   void initState() {
@@ -27,8 +27,8 @@ class _DashboardState extends State<Dashboard> {
           child: SingleChildScrollView(
         child: Column(
           children: [
-            const Header(),
-            const SizedBox(height: 16.0),
+            //const Header(),
+            //const SizedBox(height: 16.0),
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Row(
@@ -53,18 +53,22 @@ class _DashboardState extends State<Dashboard> {
   }
 }
 
-Widget _openhabWebView(BuildContext context, String url) {
-  return Container(
-    height: MediaQuery.of(context).size.height,
-    width: MediaQuery.of(context).size.width,
-    child: WebViewX(
+Widget _openhabWebView(
+  BuildContext context,
+  String url,
+) {
+  return SingleChildScrollView(
+    child: Container(
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
-      initialContent: '<h1>OpenHAB</h1>',
-      javascriptMode: JavascriptMode.unrestricted,
-      onWebViewCreated: (controller) {
-        controller.loadContent(url, SourceType.url);
-      },
+      child: WebViewX(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        initialContent: '<h1>OpenHAB</h1>',
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (controller) {
+          controller.loadContent(url, SourceType.url);
+        },
+      ),
     ),
   );
 }
