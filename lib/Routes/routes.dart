@@ -1,4 +1,4 @@
-const String _os = 'windows'; // kann auch windows oder linux sein
+const String _os = 'no debug'; // kann auch windows oder linux sein
 
 class RoutesName {
   // ignore: non_constant_identifier_names
@@ -20,9 +20,13 @@ class EndPoints {
     } else {
       const String UPLOAD_FILE = 'controller/api/upload.php';
       const String REBOOT = 'controller/api/reboot.php';
+      const String SAVE = 'controller/api/save.php';
+      const String LOAD = 'controller/api/load.php';
       return {
         'UPLOAD_FILE': UPLOAD_FILE,
         'REBOOT': REBOOT,
+        'SAVE': SAVE,
+        'LOAD': LOAD,
       };
     }
   }

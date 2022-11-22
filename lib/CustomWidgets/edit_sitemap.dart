@@ -81,6 +81,9 @@ class _EditSiteMapState extends State<EditSiteMap> {
     'garden': ['assets/icons/garden.png', 'garden'],
     'suitcase': ['assets/icons/suitcase.png', 'suitcase'],
     'pantry': ['assets/icons/pantry.png', 'pantry'],
+    'lcn': ['assets/icons/slider.png', 'lcn'],
+    'Unbekannt': ['assets/icons/slider.png', 'Unbekannt'],
+    'contact': ['assets/icons/slider.png', 'contact']
   };
 
   Map<String, String> types = {
@@ -94,7 +97,7 @@ class _EditSiteMapState extends State<EditSiteMap> {
 
   List<Floor> _floorDummy = [
     Floor(
-      icon: 'assets/icons/light.png',
+      icon: 'garden',
       name: 'Floor 1',
       rooms: [
         Room(
@@ -987,8 +990,8 @@ class _EditSiteMapState extends State<EditSiteMap> {
     });
 
     /// Initiate _floors
-    _floors = _floorDummy;
-    /*
+    //_floors = _floorDummy;
+
     OpenhabServices().getSiteMap().then((value) {
       print('InitState: $value');
       setState(() {
@@ -996,7 +999,7 @@ class _EditSiteMapState extends State<EditSiteMap> {
         _isLoading = false;
       });
     });
-    */
+
     // TODO: implement initState
     super.initState();
   }
@@ -1039,15 +1042,59 @@ class _EditSiteMapState extends State<EditSiteMap> {
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 100.0),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text('Räume',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 40,
-                            )),
+                    Responsive(
+                      desktop: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(left: 100.0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text('Räume',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 40,
+                                    )),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                            ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  right: 50.0,
+                                  //left: MediaQuery.of(context).size.width * 0.6,
+                                ),
+                                child: _saveButton(context),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      mobile: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.center,
+                              child: Text('Räume',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 40,
+                                  )),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.height * 0.05,
+                            ),
+                            Align(
+                              alignment: Alignment.center,
+                              child: _saveButton(context),
+                            )
+                          ],
+                        ),
                       ),
                     ),
 
@@ -1111,7 +1158,7 @@ class _EditSiteMapState extends State<EditSiteMap> {
             });
           },
           child: Text(
-            floor,
+            floor.substring(1, floor.length - 1),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
@@ -1235,6 +1282,48 @@ class _EditSiteMapState extends State<EditSiteMap> {
               ],
               onReorder: reorderData,
             )),
+      ),
+    );
+  }
+
+  Widget _saveButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 0.0),
+      child: ElevatedButton(
+        onPressed: () {
+          // print all of _floors
+          _floors.forEach((element) {
+            print(element);
+          });
+
+          OpenhabServices().saveSiteMap(_floors).then((value) {
+            if (value) {
+              print('Wert vorhanden');
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Sitemap erfolgreich gespeichert'),
+                backgroundColor: Colors.green,
+              ));
+            } else {
+              print('Kein Wert vorhanden');
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Sitemap konnte nicht gespeichert werden'),
+                backgroundColor: Colors.red,
+              ));
+            }
+          });
+        },
+        child: Text(
+          'Speichern',
+          style: TextStyle(
+            fontSize: 20,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          primary: Theme.of(context).primaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:visu/Models/models.dart';
+import 'package:visu/Routes/routes.dart';
 
 class OpenhabServices {
   Future<dynamic> getIP() async {
@@ -14,6 +15,80 @@ class OpenhabServices {
       return res.body;
     } else {
       throw 'unable to receive data.';
+    }
+  }
+
+  Future<bool> saveSiteMap(List<Floor> floors) async {
+    String siteMap = '';
+    siteMap += 'sitemap ' +
+        'traumhaus' +
+        ' label="' +
+        'Traumhaus' +
+        '"\n'; // label anpassbar? watch für apple watch
+    siteMap += '{\n';
+    for (var floor in floors) {
+      if (floor.name == '"Gruppen"') {
+        siteMap += '    ' + 'Frame ' + '{\n';
+      } else {
+        siteMap += '    ' +
+            'Frame label=' +
+            floor.name +
+            ' icon=' +
+            floor.icon +
+            ' {\n'; // 4 spaces
+      }
+      for (var room in floor.rooms) {
+        siteMap += '        ' +
+            'Text label=' +
+            room.label +
+            ' icon=' +
+            room.icon +
+            ' {\n'; // 8 spaces
+        for (var item in room.devices) {
+          if (item.function == 'Setpoint') {
+            siteMap += '            ' +
+                item.function +
+                ' item=' +
+                item.item +
+                ' label=' +
+                item.label +
+                ' step=' +
+                item.step! +
+                ' icon=' +
+                item.icon! +
+                '\n';
+          } else if (item.item == 'Unsichtbar') {
+            siteMap += '            ' +
+                item.function +
+                ' item=' +
+                item.item +
+                ' label=' +
+                item.label +
+                '\n';
+          } else {
+            siteMap += '            ' +
+                item.function +
+                ' item=' +
+                item.item +
+                ' label=' +
+                item.label +
+                ' icon=' +
+                item.icon! +
+                '\n'; // 12 spaces
+          }
+        }
+        siteMap += '        }\n';
+      }
+      siteMap += '    }\n';
+    }
+    siteMap += '}\n';
+
+    Uri uri = Uri.parse(EndPoints().getEndpoints()['SAVE']);
+    Response res = await post(uri, body: {'string': siteMap});
+    if (res.statusCode == 200) {
+      return true;
+    } else {
+      throw 'unable to save sitemap.';
     }
   }
 
@@ -52,9 +127,9 @@ class OpenhabServices {
               _floors['icons']!.add('');
             }
           } else {
-            _floors['names']!.add('Alle schalbaren Elemente');
+            _floors['names']!.add('"Gruppen"');
             _floors['icons']!.add(' ');
-            _floorKey = 'Alle schalbaren Elemente';
+            _floorKey = '"Gruppen"';
           }
         }
 
