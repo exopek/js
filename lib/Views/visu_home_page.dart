@@ -7,6 +7,7 @@ import 'package:visu/CustomWidgets/dashboard.dart';
 import 'package:visu/CustomWidgets/edit_sitemap.dart';
 import 'package:visu/CustomWidgets/header.dart';
 import 'package:visu/CustomWidgets/openhab.dart';
+import 'package:visu/CustomWidgets/pchk_config.dart';
 import 'package:visu/CustomWidgets/settings.dart';
 import 'package:visu/CustomWidgets/sidebar.dart';
 import 'package:visu/Responsive/responsive.dart';
@@ -21,9 +22,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Widget> dashContent = [Dashboard(), Dashboard(), Settings()];
   List<Widget> settingsContent = [
-    Container(
-      color: Colors.green,
-    ),
+    const PchkConfig(),
     const EditSiteMap(),
     const CreateListProXml(),
     Container(
