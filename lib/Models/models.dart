@@ -115,20 +115,20 @@ class Room {
 
   updateDevices(int newIndex, int oldIndex) {
     List<Device> temp = [];
-    Device tempDevice = this.devices[oldIndex];
-    this.devices.removeAt(oldIndex);
+    Device tempDevice = devices[oldIndex];
+    devices.removeAt(oldIndex);
 
     /// Update the device at the given index
-    for (int i = 0; i < this.devices.length + 1; i++) {
+    for (int i = 0; i < devices.length + 1; i++) {
       if (i < newIndex) {
-        temp.add(this.devices[i]); // Copy Value to temp
+        temp.add(devices[i]); // Copy Value to temp
       } else if (i == newIndex) {
         temp.add(tempDevice);
       } else {
-        temp.add(this.devices[i - 1]);
+        temp.add(devices[i - 1]);
       }
     }
-    this.devices = temp.toList();
+    devices = temp.toList();
     temp = [];
   }
 
@@ -177,6 +177,110 @@ class Device {
     return Device(
         label: '', item: '', icon: '', step: '', function: '', key: '');
   }
+}
+
+class Pchkconfig {
+  bool status;
+  String message;
+  String version; // String
+  String pchk_version; // String
+  String pchk_host_id; // String
+  int pchk_timeout_std; // int
+  int pchk_timeout_min; // int
+  String interface_state; // String "UP" or "DOWN"
+  List interface_ip;
+  List interface_subnet;
+  List interface_gateway;
+  List interface_dns;
+  String host_name; // String
+  String user_name; // String
+  String syncTime; // String
+  String syncTimeLink;
+  String pke_mode; // String "0", "pke_mode_private"
+  String dhcp_status; // String "true", "false"
+  String wifi_status; // String "true", "false"
+  String wifi_automatic; // String "true", "false"
+  Map<String, dynamic> timezones; // List
+  String current_timezone; // Wichtig als Voreinstellung
+  String current_region; // Wichtig als Voreinstellung
+
+  Pchkconfig(
+      {required this.status,
+      required this.message,
+      required this.version,
+      required this.wifi_status,
+      required this.wifi_automatic,
+      required this.pchk_version,
+      required this.pchk_host_id,
+      required this.pchk_timeout_std,
+      required this.pchk_timeout_min,
+      required this.interface_state,
+      required this.interface_ip,
+      required this.interface_subnet,
+      required this.interface_gateway,
+      required this.interface_dns,
+      required this.host_name,
+      required this.user_name,
+      required this.syncTime,
+      required this.syncTimeLink,
+      required this.pke_mode,
+      required this.dhcp_status,
+      required this.timezones,
+      required this.current_timezone,
+      required this.current_region});
+
+  factory Pchkconfig.fromJson(json) {
+    return Pchkconfig(
+        status: json['status'],
+        message: json['message'],
+        version: json['version'],
+        pchk_version: json['pchk_version'],
+        pchk_host_id: json['pchk_host_id'],
+        pchk_timeout_std: json['pchk_timeout_std'],
+        pchk_timeout_min: json['pchk_timeout_min'],
+        interface_state: json['interface_state'],
+        interface_ip: json['interface_ip'],
+        interface_subnet: json['interface_subnet'],
+        interface_gateway: json['interface_gateway'],
+        interface_dns: json['interface_dns'],
+        host_name: json['host_name'],
+        user_name: json['user_name'],
+        syncTime: json['syncTime'],
+        syncTimeLink: json['syncTimeLink'],
+        pke_mode: json['pke_mode'],
+        dhcp_status: json['dhcp_status'],
+        wifi_status: json['wifi_status'],
+        wifi_automatic: json['wifi_automatic'],
+        timezones: json['timezones'],
+        current_timezone: json['current_timezone'],
+        current_region: json['current_region']);
+  }
+
+  Map<String, dynamic> toJson() => {
+        'status': status,
+        'message': message,
+        'version': version,
+        'pchk_version': pchk_version,
+        'pchk_host_id': pchk_host_id,
+        'pchk_timeout_std': pchk_timeout_std,
+        'pchk_timeout_min': pchk_timeout_min,
+        'interface_state': interface_state,
+        'interface_ip': interface_ip,
+        'interface_subnet': interface_subnet,
+        'interface_gateway': interface_gateway,
+        'interface_dns': interface_dns,
+        'host_name': host_name,
+        'user_name': user_name,
+        'syncTime': syncTime,
+        'syncTimeLink': syncTimeLink,
+        'pke_mode': pke_mode,
+        'dhcp_status': dhcp_status,
+        'wifi_status': wifi_status,
+        'wifi_automatic': wifi_automatic,
+        'timezones': timezones,
+        'current_timezone': current_timezone,
+        'current_region': current_region,
+      };
 }
 
 class SiteMap {

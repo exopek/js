@@ -1,6 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-//header('Content-Type: application/json');
+//header("Access-Control-Allow-Origin: *");
+header('Content-Type: application/json');
 // get request method
 $method = $_SERVER['REQUEST_METHOD'];
 if ($method == 'GET') {
@@ -111,6 +111,7 @@ if ($method == 'GET') {
     */
     //generate timezone list
 
+    
     $regions = array(
         'Africa' => DateTimeZone::AFRICA,
         'America' => DateTimeZone::AMERICA,
@@ -121,22 +122,25 @@ if ($method == 'GET') {
         'Indian' => DateTimeZone::INDIAN,
         'Pacific' => DateTimeZone::PACIFIC
     );
+    
 
     $timezones = array();
 
+    
     foreach ($regions as $name => $mask)
     {
         $zones = DateTimeZone::listIdentifiers($mask);
         foreach($zones as $timezone)
         {
             // Lets sample the time there right now
-            $time = new DateTime(NULL, new DateTimeZone($timezone));
+            $time = new DateTime('', new DateTimeZone($timezone)); // NULL
             // Us dumb Americans can't handle millitary time
             $ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
             // Remove region name and add a sample time
             $timezones[$name][$timezone] = substr($timezone, strlen($name) + 1);// . ' - ' . $time->format('H:i') . $ampm;
         }
     }
+    
 
     /*
 	$data = array(
@@ -167,45 +171,48 @@ if ($method == 'GET') {
 	);
     */
 
+    
     $dummyData = array(
 		'status' => true,
 		'message' => 'All for pchk config',
-		'version' => '3.04', // String
-		'pchk_version' => '3.3.1', // String
-        'pchk_host_id' => '4', // String
-        'pchk_timeout_std' => 0, // int
-        'pchk_timeout_min' => 30, // int
-        'interface_state' => 'UP', // String "UP" or "DOWN"
+		'version' => '3.04',
+		'pchk_version' => '3.3.1',
+        'pchk_host_id' => '4',
+        'pchk_timeout_std' => 0,
+        'pchk_timeout_min' => 30,
+        'interface_state' => 'UP',
         'interface_ip' => array('0', '0', '0', '0'),
         'interface_subnet' => array('0', '0', '0', '0'),
         'interface_gateway' => array('0', '0', '0', '0'),
         'interface_dns' => array('0', '0', '0', '0'),
-        'host_name' => 'LCN-VISU', // String
-        'user_name' => 'Test User', // String
-        'syncTime' => 'SyncNtpTime', // String 
+        'host_name' => 'LCN-VISU',
+        'user_name' => 'Test User',
+        'syncTime' => 'SyncNtpTime',
         'syncTimeLink' => 'de.pool.ntp.org',
-        'pke_mode' => '0', // String "0", "pke_mode_private"
-        'dhcp_status' => 'true', // String "true", "false"
-        'wifi_status' => 'true', // String "true", "false"
-        'wifi_automatic' => 'true', // String "true", "false"
-        'timezones' => $timezones, // List
-        'current_timezone' => 'Europe', // Wichtig als Voreinstellung
-        'current_region' => 'Berlin', // Wichtig als Voreinstellung
+        'pke_mode' => '0',
+        'dhcp_status' => 'true',
+        'wifi_status' => 'true',
+        'wifi_automatic' => 'true',
+        'timezones' => $timezones,//array('EUROPE', 'ASIA', 'AMERICA'),
+        'current_timezone' => 'Europe',
+        'current_region' => 'Berlin',
 	);
 
 
 	$json_response = json_encode($dummyData);
     echo $json_response;
+    
+    
 
 }
 if ($method == 'POST') {
-	echo "THIS IS A POST REQUEST";
+    $data = array(
+        'status' => false,
+        'message' => 'Request method not accepted',
+    );
+    $json_response = json_encode($data);
+    echo $json_response;
 }
-if ($method == 'PUT') {
-	echo "THIS IS A PUT REQUEST";
-}
-if ($method == 'DELETE') {
-	echo "THIS IS A DELETE REQUEST";
-}
+
 
 ?>

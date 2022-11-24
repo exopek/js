@@ -22,11 +22,13 @@ class EndPoints {
       const String REBOOT = 'controller/api/reboot.php';
       const String SAVE = 'controller/api/save.php';
       const String LOAD = 'controller/api/load.php';
+      const String PCHK_CONFIG = 'controller/api/config.php';
       return {
         'UPLOAD_FILE': UPLOAD_FILE,
         'REBOOT': REBOOT,
         'SAVE': SAVE,
         'LOAD': LOAD,
+        'PCHK_CONFIG': PCHK_CONFIG,
       };
     }
   }
