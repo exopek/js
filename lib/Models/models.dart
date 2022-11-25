@@ -203,6 +203,8 @@ class Pchkconfig {
   Map<String, dynamic> timezones; // List
   String current_timezone; // Wichtig als Voreinstellung
   String current_region; // Wichtig als Voreinstellung
+  String licence;
+  int licence_count;
 
   Pchkconfig(
       {required this.status,
@@ -227,7 +229,9 @@ class Pchkconfig {
       required this.dhcp_status,
       required this.timezones,
       required this.current_timezone,
-      required this.current_region});
+      required this.current_region,
+      required this.licence,
+      required this.licence_count});
 
   factory Pchkconfig.fromJson(json) {
     return Pchkconfig(
@@ -253,7 +257,9 @@ class Pchkconfig {
         wifi_automatic: json['wifi_automatic'],
         timezones: json['timezones'],
         current_timezone: json['current_timezone'],
-        current_region: json['current_region']);
+        current_region: json['current_region'],
+        licence: json['licence'],
+        licence_count: json['licence_count']);
   }
 
   Map<String, dynamic> toJson() => {
@@ -280,6 +286,8 @@ class Pchkconfig {
         'timezones': timezones,
         'current_timezone': current_timezone,
         'current_region': current_region,
+        'licence': licence,
+        'licence_count': licence_count
       };
 }
 

@@ -1,6 +1,6 @@
 <?php
 
-$os = 'WINDOWS';
+$os = 'LINUX';
 
 if ($os == 'WINDOWS') {
     return array(

@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 // get request method
 $method = $_SERVER['REQUEST_METHOD'];
 if ($method == 'GET') {
-    /*
+    
     $pchk_config = simplexml_load_file("/var/lib/lcnpchk/lcnpchk.xml"); // das geht
     $version = file_get_contents('/var/www/version.inf');
     $config = include('/var/www/config.php');
@@ -108,7 +108,7 @@ if ($method == 'GET') {
     }
 
     $zeros = array('0', '0', '0', '0');
-    */
+    
     //generate timezone list
 
     
@@ -140,9 +140,12 @@ if ($method == 'GET') {
             $timezones[$name][$timezone] = substr($timezone, strlen($name) + 1);// . ' - ' . $time->format('H:i') . $ampm;
         }
     }
-    
+    // Name der PKE Lizenz
+    $licence = shell_exec("/pke_scripts/pchk_request lic");
 
-    /*
+    // Anzahl der Lizenzen
+    $licenceCount = explode(",",shell_exec("/pke_scripts/pchk_request clic"))[3];
+    
 	$data = array(
 		'status' => true,
 		'message' => 'All for pchk config',
@@ -168,10 +171,12 @@ if ($method == 'GET') {
         'timezones' => $timezones,
         'current_timezone' => $current_tzname, // Wichtig als Voreinstellung
         'current_region' => $current_region, // Wichtig als Voreinstellung
+        'licence' => $licence == 'null' ? 'Keine Lizenz' : $licence,
+        'licenceCount' => $licenceCount,
 	);
-    */
-
     
+
+    /*
     $dummyData = array(
 		'status' => true,
 		'message' => 'All for pchk config',
@@ -196,7 +201,10 @@ if ($method == 'GET') {
         'timezones' => $timezones,//array('EUROPE', 'ASIA', 'AMERICA'),
         'current_timezone' => 'Europe',
         'current_region' => 'Berlin',
+        'licence' => 'PKE-Lizenz',
+        'licenceCount' => 3,
 	);
+    */
 
 
 	$json_response = json_encode($dummyData);
