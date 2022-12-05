@@ -12,11 +12,13 @@ class PchkServices {
     if (response.statusCode == 200) {
       print('function getPchkConfig');
       print(response.body);
+      print(response.body.runtimeType);
       // Hier alles in ein Model
-      Map<String, dynamic> pchkConfig = jsonDecode(response.body);
+      // Map<String, dynamic> pchkConfig = jsonDecode(response.body);
 
-      return Pchkconfig.fromJson(pchkConfig);
+      return Pchkconfig.fromJson(response.body);
     } else {
+      print('Cant load');
       throw (Exception('Can not load pchk config.'));
     }
   }

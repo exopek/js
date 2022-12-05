@@ -205,6 +205,8 @@ class Pchkconfig {
   String current_region; // Wichtig als Voreinstellung
   String licence;
   int licence_count;
+  bool active_wlan_hotspot;
+  String pchk_password;
 
   Pchkconfig(
       {required this.status,
@@ -231,7 +233,9 @@ class Pchkconfig {
       required this.current_timezone,
       required this.current_region,
       required this.licence,
-      required this.licence_count});
+      required this.licence_count,
+      required this.active_wlan_hotspot,
+      required this.pchk_password});
 
   factory Pchkconfig.fromJson(json) {
     return Pchkconfig(
@@ -259,7 +263,9 @@ class Pchkconfig {
         current_timezone: json['current_timezone'],
         current_region: json['current_region'],
         licence: json['licence'],
-        licence_count: json['licence_count']);
+        licence_count: json['licence_count'],
+        active_wlan_hotspot: json['active_wlan_hotspot'],
+        pchk_password: json['pchk_password']);
   }
 
   Map<String, dynamic> toJson() => {
@@ -287,7 +293,9 @@ class Pchkconfig {
         'current_timezone': current_timezone,
         'current_region': current_region,
         'licence': licence,
-        'licence_count': licence_count
+        'licence_count': licence_count,
+        'active_wlan_hotspot': active_wlan_hotspot,
+        'pchk_password': pchk_password
       };
 }
 

@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -40,6 +41,12 @@ class _PchkConfigState extends State<PchkConfig> {
   TextEditingController _hostnameController = TextEditingController();
   TextEditingController _licenceController = TextEditingController();
   TextEditingController _licenceKeyController = TextEditingController();
+  TextEditingController _pchkTimeoutStdController = TextEditingController();
+  TextEditingController _pchkTimeoutMinController = TextEditingController();
+  TextEditingController _pchkModIdController = TextEditingController();
+  TextEditingController _ntpController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+  TextEditingController _timeController = TextEditingController();
 
   Pchkconfig dummyPchkConfig = Pchkconfig(
       status: true,
@@ -59,26 +66,54 @@ class _PchkConfigState extends State<PchkConfig> {
       host_name: 'LCN-VISU',
       user_name: 'Test User',
       syncTime: 'SyncNtpTime',
-      syncTimeLink: '',
+      syncTimeLink: 'org.lcnvisu.syncTime',
       pke_mode: 'pke_mode_private',
       dhcp_status: 'true',
       timezones: {
-        'Europe': ['Berlin'],
-        'Afrika': ['Test']
+        'Europe': {
+          'Europe\/Berlin': 'Berlin',
+          'Europe\/Paris': 'Paris',
+          'Europe\/London': 'London'
+        },
+        'Afrika': {
+          'Africa\/Abidjan': 'Abidjan',
+          'Africa\/Accra': 'Accra',
+          'Africa\/Addis_Ababa': 'Addis Ababa'
+        },
       },
       current_timezone: 'Europe',
       current_region: 'Berlin',
       licence: 'PKE-Lizenz',
-      licence_count: 3);
+      licence_count: 3,
+      active_wlan_hotspot: false,
+      pchk_password: 'lcn');
+
+  Future<PlatformFile> pickfile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['xml'],
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+      return file;
+    } else {
+      throw Exception('No file selected.');
+      // User canceled the picker
+    }
+  }
 
   @override
   void initState() {
+    /*
     PchkServices().getPchkConfig().then((value) {
       setState(() {
         pchkConfig = value;
       });
     });
-    //pchkConfig = dummyPchkConfig;
+    */
+
+    pchkConfig = dummyPchkConfig;
     super.initState();
   }
 
@@ -99,10 +134,20 @@ class _PchkConfigState extends State<PchkConfig> {
                     children: [
                       _header(context, 'Benutzereinstellungen'),
                       Center(
-                          child: SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.5,
-                              child: _userSettings(context))),
+                        child: Container(
+                            //color: Colors.amberAccent,
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            child: Padding(
+                                padding: EdgeInsets.only(
+                                  left: MediaQuery.of(context).size.width * 0.1,
+                                  right:
+                                      MediaQuery.of(context).size.width * 0.08,
+                                  top: 10.0,
+                                ),
+                                child: _userSettings(context))),
+                      ),
                       _header(context, 'Landesspezifische Einstellungen'),
+
                       Center(
                         child: Text('Aktuelle Zeit:',
                             style:
@@ -123,6 +168,7 @@ class _PchkConfigState extends State<PchkConfig> {
                                 child: _timeSettings(context))),
                       ),
                       _header(context, 'Erweiterte Einstellungen'),
+                      /*
                       Center(
                         child: Container(
                             //color: Colors.amberAccent,
@@ -136,6 +182,7 @@ class _PchkConfigState extends State<PchkConfig> {
                               child: _advancedSettings(context),
                             )),
                       ),
+                      
                       _header(context, 'Netzwerkeinstellungen'),
                       Center(
                         child: Container(
@@ -164,12 +211,15 @@ class _PchkConfigState extends State<PchkConfig> {
                               child: _licenceSettingsFix(context),
                             )),
                       ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
                       Center(
                         child: Text('Upgrade-Key eingeben',
                             style:
                                 TextStyle(color: Colors.white, fontSize: 18.0)),
                       ),
-                      Center(
+                       Center(
                         child: Container(
                             //color: Colors.amberAccent,
                             width: MediaQuery.of(context).size.width * 0.5,
@@ -183,8 +233,21 @@ class _PchkConfigState extends State<PchkConfig> {
                             )),
                       ),
                       _header(context, 'Wartungseinstellungen'),
+                      Center(
+                        child: Container(
+                            //color: Colors.amberAccent,
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: MediaQuery.of(context).size.width * 0.1,
+                                right: MediaQuery.of(context).size.width * 0.08,
+                                top: 10.0,
+                              ),
+                              child: _maintenanceSettings(context),
+                            )),
+                      ),
                       _header(context, 'WLAN-Einstellungen'),
-                      _header(context, 'Firmware-Aktualisierung'),
+                      _header(context, 'Firmware-Aktualisierung'),*/
                     ],
                   ),
                 ),
@@ -196,12 +259,24 @@ class _PchkConfigState extends State<PchkConfig> {
     );
   }
 
+  Widget _maintenanceSettings(context) {
+    return Column(
+      children: [
+        _textSettings(
+            context, 'Status LCN Verbindung', 'Online', Colors.greenAccent),
+        _checkBoxSettings(context, 'Aktiviere WLAN-Hotspot',
+            pchkConfig.active_wlan_hotspot, 'wlan_hotspot'),
+      ],
+    );
+  }
+
   Widget _licenceSettingsChange(context) {
     return Column(
       children: [
         _textFieldSettings(
-            context, 'Lizenznehmer:', '', 0.08, _licenceController),
-        _textFieldSettings(context, 'Key:', '', 0.08, _licenceKeyController)
+            context, 'Lizenznehmer:', '', 0.08, _licenceController, null),
+        _textFieldSettings(
+            context, 'Key:', '', 0.08, _licenceKeyController, null)
       ],
     );
   }
@@ -245,47 +320,51 @@ class _PchkConfigState extends State<PchkConfig> {
             pchkConfig.dhcp_status == 'true' ? true : false, 'dhcp_status'),
         // IP-Adresse
         _adressSettings(context, 'IP-Addresse:', [
-          _textField(context, pchkConfig.interface_ip[0], 0.03, _ip1Controller),
-          _textField(context, pchkConfig.interface_ip[1], 0.03, _ip2Controller),
-          _textField(context, pchkConfig.interface_ip[2], 0.03, _ip3Controller),
-          _textField(context, pchkConfig.interface_ip[3], 0.03, _ip4Controller)
+          _textField(
+              context, pchkConfig.interface_ip[0], 0.03, _ip1Controller, null),
+          _textField(
+              context, pchkConfig.interface_ip[1], 0.03, _ip2Controller, null),
+          _textField(
+              context, pchkConfig.interface_ip[2], 0.03, _ip3Controller, null),
+          _textField(
+              context, pchkConfig.interface_ip[3], 0.03, _ip4Controller, null)
         ]),
         // Subnetzmaske
         _adressSettings(context, 'Subnetzmaske:', [
           _textField(context, pchkConfig.interface_subnet[0], 0.03,
-              _subnet1Controller),
+              _subnet1Controller, null),
           _textField(context, pchkConfig.interface_subnet[1], 0.03,
-              _subnet2Controller),
+              _subnet2Controller, null),
           _textField(context, pchkConfig.interface_subnet[2], 0.03,
-              _subnet3Controller),
-          _textField(
-              context, pchkConfig.interface_subnet[3], 0.03, _subnet4Controller)
+              _subnet3Controller, null),
+          _textField(context, pchkConfig.interface_subnet[3], 0.03,
+              _subnet4Controller, null)
         ]),
         // Gateway
         _adressSettings(context, 'Router:', [
           _textField(context, pchkConfig.interface_gateway[0], 0.03,
-              _gateway1Controller),
+              _gateway1Controller, null),
           _textField(context, pchkConfig.interface_gateway[1], 0.03,
-              _gateway2Controller),
+              _gateway2Controller, null),
           _textField(context, pchkConfig.interface_gateway[2], 0.03,
-              _gateway3Controller),
+              _gateway3Controller, null),
           _textField(context, pchkConfig.interface_gateway[3], 0.03,
-              _gateway4Controller)
+              _gateway4Controller, null)
         ]),
         // DNS
         _adressSettings(context, 'DNS-Server:', [
+          _textField(context, pchkConfig.interface_dns[0], 0.03,
+              _dns1Controller, null),
+          _textField(context, pchkConfig.interface_dns[1], 0.03,
+              _dns2Controller, null),
+          _textField(context, pchkConfig.interface_dns[2], 0.03,
+              _dns3Controller, null),
           _textField(
-              context, pchkConfig.interface_dns[0], 0.03, _dns1Controller),
-          _textField(
-              context, pchkConfig.interface_dns[1], 0.03, _dns2Controller),
-          _textField(
-              context, pchkConfig.interface_dns[2], 0.03, _dns3Controller),
-          _textField(
-              context, pchkConfig.interface_dns[3], 0.03, _dns4Controller)
+              context, pchkConfig.interface_dns[3], 0.03, _dns4Controller, null)
         ]),
         // Hostname
         _textFieldSettings(context, 'Hostname:', pchkConfig.host_name, 0.1,
-            _hostnameController),
+            _hostnameController, null),
       ],
     );
   }
@@ -325,6 +404,21 @@ class _PchkConfigState extends State<PchkConfig> {
                       pchkConfig.dhcp_status = value.toString();
                     });
                     break;
+                  case 'wlan_hotspot':
+                    setState(() {
+                      pchkConfig.active_wlan_hotspot = value!;
+                    });
+                    break;
+                  case 'bus_synchro':
+                    setState(() {
+                      //pchkConfig. = value!;
+                    });
+                    break;
+                  case 'ntp-server':
+                    setState(() {
+                      //pchkConfig. = value!;
+                    });
+                    break;
                 }
                 //this.status = value;
               });
@@ -353,7 +447,7 @@ class _PchkConfigState extends State<PchkConfig> {
   }
 
   Widget _textFieldSettings(context, String text, String hintText,
-      float boxWidth, TextEditingController controller) {
+      float boxWidth, TextEditingController controller, String? ending) {
     return Row(
       children: [
         Padding(
@@ -364,7 +458,7 @@ class _PchkConfigState extends State<PchkConfig> {
                 style: TextStyle(color: Colors.white, fontSize: 18.0)),
           ),
         ),
-        _textField(context, hintText, boxWidth, controller)
+        _textField(context, hintText, boxWidth, controller, ending)
       ],
     );
   }
@@ -413,10 +507,12 @@ class _PchkConfigState extends State<PchkConfig> {
   }
 
   Widget _textField(BuildContext context, String hintText, float boxWidth,
-      TextEditingController controller) {
+      TextEditingController controller, String? ending) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * boxWidth,
-      child: TextField(
+      child: //Row(
+          //children: [
+          TextField(
         controller: controller,
         style: TextStyle(color: Colors.white, fontSize: 16.0),
         decoration: InputDecoration(
@@ -429,6 +525,15 @@ class _PchkConfigState extends State<PchkConfig> {
             hintText: hintText,
             hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
       ),
+      /*Padding(
+            padding: const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 5.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.05,
+              child: Text(ending ?? '',
+                  style: TextStyle(color: Colors.white, fontSize: 18.0)),
+            ),
+          ),*/
+      // ],
     );
   }
 
@@ -437,92 +542,21 @@ class _PchkConfigState extends State<PchkConfig> {
       children: [
         Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.1,
-                child: Text('PCHK Timeout:',
-                    style: TextStyle(color: Colors.white, fontSize: 18.0)),
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.05,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 5.0),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.05,
-                child: Text('Std.',
-                    style: TextStyle(color: Colors.white, fontSize: 18.0)),
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.05,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 5.0),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.05,
-                child: Text('Min.',
-                    style: TextStyle(color: Colors.white, fontSize: 18.0)),
-              ),
-            ),
+            _textFieldSettings(
+                context,
+                'PCHK Timeout',
+                pchkConfig.pchk_timeout_std.toString(),
+                0.1,
+                _pchkTimeoutStdController,
+                'Std.'),
+            _textField(context, pchkConfig.pchk_timeout_min.toString(), 0.1,
+                _pchkTimeoutMinController, 'Min.'),
           ],
         ),
         Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.1,
-                child: Text('PCHK Modul-ID:',
-                    style: TextStyle(color: Colors.white, fontSize: 18.0)),
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.05,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
+            _textFieldSettings(context, 'PCHK Modul-ID',
+                pchkConfig.pchk_host_id, 0.1, _pchkModIdController, 'Std.'),
           ],
         )
       ],
@@ -537,12 +571,13 @@ class _PchkConfigState extends State<PchkConfig> {
             Padding(
               padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
               child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.2,
+                width: MediaQuery.of(context).size.width * 0.1,
                 child: Text('Zeitzone:',
                     style: TextStyle(color: Colors.white, fontSize: 18.0)),
               ),
             ),
             DropdownButton(
+                hint: Text(pchkConfig.current_region),
                 style: TextStyle(
                     fontSize: 20.0,
                     color: Colors.white,
@@ -551,8 +586,9 @@ class _PchkConfigState extends State<PchkConfig> {
                     .map((e) => DropdownMenuItem(
                         value: e,
                         child: Text(
-                          e,
-                          style: TextStyle(color: Colors.white),
+                          pchkConfig.timezones[e]!.values.first,
+                          style: TextStyle(
+                              color: Colors.white), // ToDo: DropDown Menu
                         )))
                     .toList(),
                 icon: const Icon(Icons.arrow_downward),
@@ -567,214 +603,34 @@ class _PchkConfigState extends State<PchkConfig> {
                 }),
           ],
         ),
-        Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: Text('Datumseinstellung:',
-                  style: TextStyle(color: Colors.white, fontSize: 18.0)),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.1,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: Text('Zeiteinstellung:',
-                  style: TextStyle(color: Colors.white, fontSize: 18.0)),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.1,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: Text('LCN Bus Zeitsynchronisation:',
-                  style: TextStyle(color: Colors.white, fontSize: 18.0)),
-            ),
-            Checkbox(
-                value: true,
-                onChanged: (value) {
-                  setState(() {
-                    //this.value = value;
-                  });
-                })
-          ],
-        ),
-        Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: Text('hole Zeit von NTP-Server:',
-                  style: TextStyle(color: Colors.white, fontSize: 18.0)),
-            ),
-            Checkbox(
-                value: true,
-                onChanged: (value) {
-                  setState(() {
-                    //this.value = value;
-                  });
-                })
-          ],
-        ),
-        Row(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: Text('NTP Zeitserver:',
-                  style: TextStyle(color: Colors.white, fontSize: 18.0)),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.1,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
-          ],
-        ),
+        _textFieldSettings(context, 'Datumseinstellung:', '12/05/2022', 0.1,
+            _dateController, null),
+        _textFieldSettings(context, 'Zeiteinstellung:', '15:25:00', 0.1,
+            _timeController, null),
+        _checkBoxSettings(
+            context, 'LCN Bus Zeitsynchronisation:', true, 'bus_synchro'),
+        _checkBoxSettings(
+            context, 'hole Zeit von NTP-Server', true, 'ntp-server'),
+        _textFieldSettings(context, 'NTP Zeitserver', pchkConfig.syncTimeLink,
+            0.1, _ntpController, null)
       ],
     );
   }
 
   Widget _userSettings(context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: Row(children: [
-        Column(
+        padding: const EdgeInsets.only(top: 20.0),
+        child: Column(
           children: [
-            Padding(
-              padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-              child: Text('Benutzername: ',
-                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-              child: Text('Altes Passwort: ',
-                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-              child: Text('Neues Passwort: ',
-                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-              child: Text('Wiederholung: ',
-                  style: TextStyle(color: Colors.white, fontSize: 16.0)),
-            ),
+            _textFieldSettings(context, 'Benutzername:', pchkConfig.user_name,
+                0.1, _userNameController, null),
+            _textFieldSettings(context, 'Passwort:', pchkConfig.pchk_password,
+                0.1, _passwordController, null),
+            _textFieldSettings(context, 'Neues Passwort:', '', 0.1,
+                _newPasswordController, null),
+            _textFieldSettings(context, 'Wiederholen:', '', 0.1,
+                _newPasswordCheckController, null),
           ],
-        ),
-        Column(
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.1,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.1,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.1,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.1,
-              child: TextField(
-                controller: _userNameController,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    hoverColor: Theme.of(context).primaryColor,
-                    filled: true,
-                    fillColor: Colors.black12,
-                    border: InputBorder.none,
-                    hintText: pchkConfig.user_name,
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16.0)),
-              ),
-            ),
-          ],
-        ),
-      ]),
-    );
+        ));
   }
 }
