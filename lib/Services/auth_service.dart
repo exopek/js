@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:dart_ipify/dart_ipify.dart';
 import 'package:http/http.dart';
-import 'package:visu/Models/models.dart';
+import 'package:visu/models/models.dart';
 
 class Authentication {
   Future<Auth> login(String username, String password) async {

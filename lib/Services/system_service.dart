@@ -1,20 +1,21 @@
 import 'dart:convert';
-
+import 'package:visu/routes/routes.dart';
 import 'package:http/http.dart';
 
 class System {
-  Future<bool> reboot() async {
-    Uri uri = Uri.parse('controller/api/reboot.php');
-    Response response = await get(uri);
+  Future<String> reboot() async {
+    Uri uri = Uri.parse(EndPoints().getEndpoints()['PCHK_CONFIG']);
+    var rebootCommand = {'reboot_sw': 'true'};
+    var response = await post(uri, body: rebootCommand);
     if (response.statusCode == 200) {
       Map<String, dynamic> rebootStatus = jsonDecode(response.body);
-      if (rebootStatus['status'] == true) {
-        return Future.delayed(const Duration(seconds: 150), () => true);
+      if (rebootStatus['status'] == 'success') {
+        return Future.delayed(const Duration(seconds: 200), () => 'OK');
       } else {
-        return Future.delayed(const Duration(seconds: 10), () => false);
+        return Future.delayed(const Duration(seconds: 10), () => 'Failed');
       }
     } else {
-      throw (Exception('Can not load last xml file info.'));
+      throw (Exception('Reboot failed'));
     }
   }
 }

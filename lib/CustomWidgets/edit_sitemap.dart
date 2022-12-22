@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:visu/Models/models.dart';
-import 'package:visu/Responsive/responsive.dart';
-import 'package:visu/Services/openhab_service.dart';
+import 'package:visu/models/models.dart';
+import 'package:visu/responsive/responsive.dart';
+import 'package:visu/services/openhab_service.dart';
+import 'package:visu/customWidgets/header.dart';
 
 class EditSiteMap extends StatefulWidget {
   const EditSiteMap({Key? key}) : super(key: key);
@@ -963,6 +964,11 @@ class _EditSiteMapState extends State<EditSiteMap> {
     });
   }
 
+  Future<bool> _waitForSiteMAp() async {
+    await Future.delayed(const Duration(seconds: 1));
+    return true;
+  }
+
   @override
   void initState() {
     _isLoading = false;
@@ -1006,138 +1012,160 @@ class _EditSiteMapState extends State<EditSiteMap> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SafeArea(
-      child: SingleChildScrollView(
-          //physics: const NeverScrollableScrollPhysics(),
-          child: _isLoading
-              ? const CircularProgressIndicator()
-              : Column(
-                  children: [
-                    Responsive(
-                      mobile: Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: SizedBox(
-                          height: 52,
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _floors.length,
-                              itemBuilder: (context, index) {
-                                return _buildFloorElement(_floors[index].name,
-                                    index); //_buildFloorElement('Test');
-                              }),
-                        ),
-                      ),
-                      desktop: Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: SizedBox(
-                          height: 52,
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _floors.length,
-                              itemBuilder: (context, index) {
-                                return _buildFloorElement(_floors[index].name,
-                                    index); //_buildFloorElement('Test');
-                              }),
-                        ),
-                      ),
-                    ),
-                    Responsive(
-                      desktop: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: Row(
+    return FutureBuilder<Object>(
+        future: _waitForSiteMAp(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData && snapshot.data != true) {
+            return const Scaffold(
+                body: SafeArea(
+                    child: Center(
+              child: CircularProgressIndicator(),
+            )));
+          } else {
+            return Scaffold(
+                body: SafeArea(
+              child: SingleChildScrollView(
+                  //physics: const NeverScrollableScrollPhysics(),
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : Column(
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.only(left: 100.0),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text('Räume',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 40,
-                                    )),
-                              ),
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.5,
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  right: 50.0,
-                                  //left: MediaQuery.of(context).size.width * 0.6,
+                            const Header(),
+                            const SizedBox(height: 16.0),
+                            Responsive(
+                              mobile: Padding(
+                                padding: const EdgeInsets.all(30.0),
+                                child: SizedBox(
+                                  height: 52,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: _floors.length,
+                                      itemBuilder: (context, index) {
+                                        return _buildFloorElement(
+                                            _floors[index].name,
+                                            index); //_buildFloorElement('Test');
+                                      }),
                                 ),
-                                child: _saveButton(context),
                               ),
-                            )
-                          ],
-                        ),
-                      ),
-                      mobile: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.center,
-                              child: Text('Räume',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 40,
-                                  )),
+                              desktop: Padding(
+                                padding: const EdgeInsets.all(30.0),
+                                child: SizedBox(
+                                  height: 52,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: _floors.length,
+                                      itemBuilder: (context, index) {
+                                        return _buildFloorElement(
+                                            _floors[index].name,
+                                            index); //_buildFloorElement('Test');
+                                      }),
+                                ),
+                              ),
                             ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.height * 0.05,
+                            Responsive(
+                              desktop: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Row(
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsets.only(left: 100.0),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text('Räume',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 40,
+                                            )),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.5,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          right: 50.0,
+                                          //left: MediaQuery.of(context).size.width * 0.6,
+                                        ),
+                                        child: _saveButton(context),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              mobile: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Column(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: Text('Räume',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 40,
+                                          )),
+                                    ),
+                                    SizedBox(
+                                      width:
+                                          MediaQuery.of(context).size.height *
+                                              0.05,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: _saveButton(context),
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
-                            Align(
-                              alignment: Alignment.center,
-                              child: _saveButton(context),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
 
-                    /// Räume
-                    Responsive(
-                      mobile: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: SizedBox(
-                            child: ListView.builder(
-                                //controller: _scrollController,
-                                shrinkWrap: true,
-                                scrollDirection: Axis.vertical,
-                                itemCount: _floors[_floorIndex]
-                                    .rooms
-                                    .length, // index ändert sich je nach ausgewähltem Stockwerk
-                                itemBuilder: (context, index) {
-                                  return _buildRoomElement(
-                                      _floors[_floorIndex].rooms[index], index);
-                                }),
-                          ),
-                        ),
-                      ),
-                      desktop: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 50.0),
-                          child: SizedBox(
-                            child: ListView.builder(
-                                //controller: _scrollController,
-                                shrinkWrap: true,
-                                scrollDirection: Axis.vertical,
-                                itemCount: _floors[_floorIndex].rooms.length,
-                                itemBuilder: (context, index) {
-                                  return _buildRoomElement(
-                                      _floors[_floorIndex].rooms[index], index);
-                                }),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )),
-    ));
+                            /// Räume
+                            Responsive(
+                              mobile: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 10.0),
+                                  child: SizedBox(
+                                    child: ListView.builder(
+                                        //controller: _scrollController,
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        itemCount: _floors[_floorIndex]
+                                            .rooms
+                                            .length, // index ändert sich je nach ausgewähltem Stockwerk
+                                        itemBuilder: (context, index) {
+                                          return _buildRoomElement(
+                                              _floors[_floorIndex].rooms[index],
+                                              index);
+                                        }),
+                                  ),
+                                ),
+                              ),
+                              desktop: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 50.0),
+                                  child: SizedBox(
+                                    child: ListView.builder(
+                                        //controller: _scrollController,
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.vertical,
+                                        itemCount:
+                                            _floors[_floorIndex].rooms.length,
+                                        itemBuilder: (context, index) {
+                                          return _buildRoomElement(
+                                              _floors[_floorIndex].rooms[index],
+                                              index);
+                                        }),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
+            ));
+          }
+        });
   }
 
   Widget _buildFloorElement(String floor, int index) {

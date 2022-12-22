@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide MenuController;
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:visu/Views/login_page.dart';
-import 'package:visu/Views/visu_home_page.dart';
-import 'package:visu/Theme/custom_theme.dart';
+import 'package:visu/views/login_page.dart';
+import 'package:visu/views/visu_home_page.dart';
+import 'package:visu/theme/custom_theme.dart';
 
-import 'Controller/menu_controller.dart';
-import 'Routes/route_generator.dart';
-import 'Routes/routes.dart';
+import 'controller/menu_controller.dart';
+import 'routes/route_generator.dart';
+import 'routes/routes.dart';
 
 void main() async {
   //final dir = await getApplicationSupportDirectory();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:visu/Controller/menu_controller.dart';
-import 'package:visu/Responsive/responsive.dart';
+import 'package:visu/controller/menu_controller.dart';
+import 'package:visu/responsive/responsive.dart';
 
 class Header extends StatefulWidget {
   const Header({Key? key}) : super(key: key);

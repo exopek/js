@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:visu/Controller/menu_controller.dart';
+import 'package:visu/controller/menu_controller.dart';
+import 'package:visu/responsive/responsive.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class SideMenu extends StatefulWidget {
@@ -14,6 +15,17 @@ class SideMenu extends StatefulWidget {
 
 class _SideMenuState extends State<SideMenu> {
   List _sideBarContent = ['', 'Dashboard', 'Einstellungen'];
+  List _mobileSideBarContent = [
+    '',
+    Icon(
+      Icons.home,
+      color: Colors.white,
+    ),
+    Icon(
+      Icons.settings,
+      color: Colors.white,
+    )
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +39,22 @@ class _SideMenuState extends State<SideMenu> {
                   child: Image(image: AssetImage('assets/issendorff.png')),
                 );
               } else {
-                return DrawerListTile(
-                    title: _sideBarContent[index],
-                    press: () {
-                      menuController.setMenuIndex(index);
-                      menuController.setShowSettingsContentStatus(false);
-                    });
+                return Responsive(
+                  desktop: DrawerListTile(
+                      withIcon: false,
+                      title: _sideBarContent[index],
+                      press: () {
+                        menuController.setMenuIndex(index);
+                        menuController.setShowSettingsContentStatus(false);
+                      }),
+                  mobile: DrawerListTile(
+                      withIcon: true,
+                      icon: _mobileSideBarContent[index],
+                      press: () {
+                        menuController.setMenuIndex(index);
+                        menuController.setShowSettingsContentStatus(false);
+                      }),
+                );
               }
             })
         /*
@@ -61,13 +83,17 @@ class DrawerListTile extends StatelessWidget {
   const DrawerListTile({
     Key? key,
     // For selecting those three line once press "Command+D"
-    required this.title,
+    this.title,
+    this.icon,
+    required this.withIcon,
     //required this.svgSrc,
     required this.press,
   }) : super(key: key);
 
-  final String title;
+  final String? title;
   final VoidCallback press;
+  final Icon? icon;
+  final bool withIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -82,10 +108,12 @@ class DrawerListTile extends StatelessWidget {
         height: 16,
       ),
       */
-      title: Text(
-        title,
-        style: TextStyle(color: Colors.white54),
-      ),
+      title: withIcon
+          ? icon
+          : Text(
+              title ?? '',
+              style: TextStyle(color: Colors.white54),
+            ),
     );
   }
 }

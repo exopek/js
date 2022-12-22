@@ -1,0 +1,13 @@
+{
+    "name": "visu",
+    "context": "..",
+    "dockerFile": "../Dockerfile",
+    "remoteUser": "developer",
+    "settings": {
+      "terminal.integrated.shell.linux": null
+    },
+    "runArgs": ["--privileged"],
+    "extensions": ["dart-code.flutter"],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/developer/visu,type=bind,consistency=delegated",
+    "workspaceFolder": "/home/developer/visu"
+  }

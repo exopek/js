@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
-import 'package:visu/Controller/menu_controller.dart';
-import 'package:visu/CustomWidgets/create_list_pro_xml.dart';
-import 'package:visu/CustomWidgets/dashboard.dart';
-import 'package:visu/CustomWidgets/edit_sitemap.dart';
-import 'package:visu/CustomWidgets/header.dart';
-import 'package:visu/CustomWidgets/openhab.dart';
-import 'package:visu/CustomWidgets/pchk_config.dart';
-import 'package:visu/CustomWidgets/settings.dart';
-import 'package:visu/CustomWidgets/sidebar.dart';
-import 'package:visu/Responsive/responsive.dart';
+import 'package:visu/controller/menu_controller.dart';
+import 'package:visu/customWidgets/create_list_pro_xml.dart';
+import 'package:visu/customWidgets/dashboard.dart';
+import 'package:visu/customWidgets/edit_sitemap.dart';
+import 'package:visu/customWidgets/header.dart';
+import 'package:visu/customWidgets/openhab.dart';
+import 'package:visu/customWidgets/pchk_config.dart';
+import 'package:visu/customWidgets/settings.dart';
+import 'package:visu/customWidgets/sidebar.dart';
+import 'package:visu/responsive/responsive.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

@@ -204,7 +204,7 @@ class Pchkconfig {
   String current_timezone; // Wichtig als Voreinstellung
   String current_region; // Wichtig als Voreinstellung
   String licence;
-  int licence_count;
+  String licence_count;
   bool active_wlan_hotspot;
   String pchk_password;
 
@@ -239,33 +239,33 @@ class Pchkconfig {
 
   factory Pchkconfig.fromJson(json) {
     return Pchkconfig(
-        status: json['status'],
-        message: json['message'],
-        version: json['version'],
-        pchk_version: json['pchk_version'],
-        pchk_host_id: json['pchk_host_id'],
-        pchk_timeout_std: json['pchk_timeout_std'],
-        pchk_timeout_min: json['pchk_timeout_min'],
-        interface_state: json['interface_state'],
-        interface_ip: json['interface_ip'],
-        interface_subnet: json['interface_subnet'],
-        interface_gateway: json['interface_gateway'],
-        interface_dns: json['interface_dns'],
-        host_name: json['host_name'],
-        user_name: json['user_name'],
-        syncTime: json['syncTime'],
-        syncTimeLink: json['syncTimeLink'],
-        pke_mode: json['pke_mode'],
-        dhcp_status: json['dhcp_status'],
-        wifi_status: json['wifi_status'],
-        wifi_automatic: json['wifi_automatic'],
-        timezones: json['timezones'],
-        current_timezone: json['current_timezone'],
-        current_region: json['current_region'],
-        licence: json['licence'],
-        licence_count: json['licence_count'],
-        active_wlan_hotspot: json['active_wlan_hotspot'],
-        pchk_password: json['pchk_password']);
+        status: json['status'] ?? false,
+        message: json['message'] ?? '',
+        version: json['version'] ?? '',
+        pchk_version: json['pchk_version'] ?? '',
+        pchk_host_id: json['pchk_host_id'] ?? '',
+        pchk_timeout_std: json['pchk_timeout_std'] ?? 0,
+        pchk_timeout_min: json['pchk_timeout_min'] ?? 0,
+        interface_state: json['interface_state'] ?? '',
+        interface_ip: json['interface_ip'] ?? [],
+        interface_subnet: json['interface_subnet'] ?? [],
+        interface_gateway: json['interface_gateway'] ?? [],
+        interface_dns: json['interface_dns'] ?? [],
+        host_name: json['host_name'] ?? '',
+        user_name: json['user_name'] ?? '',
+        syncTime: json['syncTime'] ?? '',
+        syncTimeLink: json['syncTimeLink'] ?? '',
+        pke_mode: json['pke_mode'] ?? '',
+        dhcp_status: json['dhcp_status'] ?? '',
+        wifi_status: json['wifi_status'] ?? '',
+        wifi_automatic: json['wifi_automatic'] ?? '',
+        timezones: json['timezones'] ?? {},
+        current_timezone: json['current_timezone'] ?? '',
+        current_region: json['current_region'] ?? '',
+        licence: json['licence'] ?? '',
+        licence_count: json['licence_count'] ?? '',
+        active_wlan_hotspot: json['active_wlan_hotspot'] ?? false,
+        pchk_password: '');
   }
 
   Map<String, dynamic> toJson() => {
@@ -296,6 +296,162 @@ class Pchkconfig {
         'licence_count': licence_count,
         'active_wlan_hotspot': active_wlan_hotspot,
         'pchk_password': pchk_password
+      };
+}
+
+class PchkPostConfig {
+  final String? save_settings;
+  final String? username_new;
+  final String? passwd_new;
+  final String? passwd_repeat;
+  final String? passwd_old;
+  final int? pchk_timeout_std;
+  final int? pchk_timeout_min;
+  final String? pchk_modid;
+  final String? ip_1;
+  final String? ip_2;
+  final String? ip_3;
+  final String? ip_4;
+  final String? subnet_1;
+  final String? subnet_2;
+  final String? subnet_3;
+  final String? subnet_4;
+  final String? gw_1;
+  final String? gw_2;
+  final String? gw_3;
+  final String? gw_4;
+  final String? dns_1;
+  final String? dns_2;
+  final String? dns_3;
+  final String? dns_4;
+  final String? enable_dhcp;
+  final String? current_ip;
+  final String? current_subnet;
+  final String? current_gw;
+  final String? current_dns;
+  final String? current_hostname;
+  final String? hostname;
+  final String? wifi_ip_1;
+  final String? wifi_ip_2;
+  final String? wifi_ip_3;
+  final String? wifi_ip_4;
+  final String? enable_wireless;
+  final String? current_wifi_ip;
+  final String? wifi_wpa_key;
+  final String? current_wifi_wpa_key;
+  final String? enable_automatic;
+  final String? date;
+  final String? time;
+  final String? tzone;
+  final String? current_date;
+  final String? current_time;
+  final String? current_tzone;
+  final String? enable_rtc_sync;
+  final String? get_time_from_ntp;
+  final String? ntp_server;
+
+  PchkPostConfig({
+    this.save_settings,
+    this.username_new,
+    this.passwd_new,
+    this.passwd_repeat,
+    this.passwd_old,
+    this.pchk_timeout_std,
+    this.pchk_timeout_min,
+    this.pchk_modid,
+    this.ip_1,
+    this.ip_2,
+    this.ip_3,
+    this.ip_4,
+    this.subnet_1,
+    this.subnet_2,
+    this.subnet_3,
+    this.subnet_4,
+    this.gw_1,
+    this.gw_2,
+    this.gw_3,
+    this.gw_4,
+    this.dns_1,
+    this.dns_2,
+    this.dns_3,
+    this.dns_4,
+    this.enable_dhcp,
+    this.current_ip,
+    this.current_subnet,
+    this.current_gw,
+    this.current_dns,
+    this.current_hostname,
+    this.hostname,
+    this.wifi_ip_1,
+    this.wifi_ip_2,
+    this.wifi_ip_3,
+    this.wifi_ip_4,
+    this.enable_wireless,
+    this.current_wifi_ip,
+    this.wifi_wpa_key,
+    this.current_wifi_wpa_key,
+    this.enable_automatic,
+    this.date,
+    this.time,
+    this.tzone,
+    this.current_date,
+    this.current_time,
+    this.current_tzone,
+    this.enable_rtc_sync,
+    this.get_time_from_ntp,
+    this.ntp_server,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'save_settings': save_settings ?? '',
+        'username_new': username_new ?? '',
+        'password_new': passwd_new ?? '',
+        'password_new_repeat': passwd_repeat ?? '',
+        'password_old': passwd_old ?? '',
+        'pchk_timeout_std': pchk_timeout_std ?? '',
+        'pchk_timeout_min': pchk_timeout_min ?? '',
+        'pchk_modid': pchk_modid ?? '',
+        'ip_1': ip_1 ?? '',
+        'ip_2': ip_2 ?? '',
+        'ip_3': ip_3 ?? '',
+        'ip_4': ip_4 ?? '',
+        'subnet_1': subnet_1 ?? '',
+        'subnet_2': subnet_2 ?? '',
+        'subnet_3': subnet_3 ?? '',
+        'subnet_4': subnet_4 ?? '',
+        'gateway_1': gw_1 ?? '',
+        'gateway_2': gw_2 ?? '',
+        'gateway_3': gw_3 ?? '',
+        'gateway_4': gw_4 ?? '',
+        'dns_1': dns_1 ?? '',
+        'dns_2': dns_2 ?? '',
+        'dns_3': dns_3 ?? '',
+        'dns_4': dns_4 ?? '',
+        'enable_dhcp': enable_dhcp ?? '',
+        'current_ip': current_ip ?? '',
+        'current_subnet': current_subnet ?? '',
+        'current_gateway': current_gw ?? '',
+        'current_dns': current_dns ?? '',
+        'current_hostname': current_hostname ?? '',
+        'hostname': hostname ?? '',
+        'wifi_ip_1': wifi_ip_1 ?? '',
+        'wifi_ip_2': wifi_ip_2 ?? '',
+        'wifi_ip_3': wifi_ip_3 ?? '',
+        'wifi_ip_4': wifi_ip_4 ?? '',
+        'enable_wireless': enable_wireless ?? '',
+        'current_wifi_ip': current_wifi_ip ?? '',
+        'wifi_wpa_key': wifi_wpa_key ?? '',
+        'current_wifi_wpa_key': current_wifi_wpa_key ?? '',
+        'enable_automatic': enable_automatic ?? '',
+        'date': date ?? '',
+        'time': time ?? '',
+        'tzone': tzone ?? '',
+        'current_date': current_date ?? '',
+        'current_time': current_time ?? '',
+        'current_tzone': current_tzone ?? '',
+        'enable_rtc_sync': enable_rtc_sync ?? '',
+        'get_time_from_ntp': get_time_from_ntp ?? '',
+        'ntp_server': ntp_server ?? '',
       };
 }
 

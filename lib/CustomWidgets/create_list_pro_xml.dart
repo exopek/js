@@ -3,10 +3,10 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:visu/CustomWidgets/header.dart';
-import 'package:visu/Models/models.dart';
-import 'package:visu/Responsive/responsive.dart';
-import 'package:visu/Views/login_page.dart';
+import 'package:visu/customWidgets/header.dart';
+import 'package:visu/models/models.dart';
+import 'package:visu/responsive/responsive.dart';
+import 'package:visu/views/login_page.dart';
 
 import '../Services/helper_services.dart';
 

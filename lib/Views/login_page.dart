@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:visu/Clients/dio_client.dart';
-import 'package:visu/Forms/login_form.dart';
+import 'package:visu/clients/dio_client.dart';
+import 'package:visu/forms/login_form.dart';
 import 'package:xml/xml.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen();
-
 
   /*
   Future<List> getPchkConfig() async {
@@ -28,15 +27,14 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[800],
-      body: const Center(
-              child: SizedBox(
-                width: 400,
-                child: Card(
-                  child: SignUpForm(),
-                ),
-              ),
-            )
-    );
+        backgroundColor: Colors.grey[800],
+        body: const Center(
+          child: SizedBox(
+            width: 400,
+            child: Card(
+              child: SignUpForm(),
+            ),
+          ),
+        ));
   }
 }

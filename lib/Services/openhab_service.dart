@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
-import 'package:visu/Models/models.dart';
-import 'package:visu/Routes/routes.dart';
+import 'package:visu/models/models.dart';
+import 'package:visu/routes/routes.dart';
 
 class OpenhabServices {
   Future<dynamic> getIP() async {
@@ -93,7 +93,8 @@ class OpenhabServices {
   }
 
   Future<List<Floor>> getSiteMap() async {
-    Uri uri = Uri.parse('controller/api/load.php');
+    //Uri uri = Uri.parse('controller/api/load.php');
+    Uri uri = Uri.parse(EndPoints().getEndpoints()['LOAD']);
     List _subStrings = [];
     List<Floor> _result = [];
     Map<String, List> _floors = {
@@ -105,7 +106,6 @@ class OpenhabServices {
     String _roomKey = '';
     Response res = await get(uri);
     if (res.statusCode == 200) {
-      print(res.body);
       _subStrings.add(res.body.split('#'));
       for (int i = 0; i < _subStrings[0].length - 2; i++) {
         String subString = _subStrings[0][i].replaceAll(' ', '');

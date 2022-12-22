@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:visu/CustomWidgets/header.dart';
-import 'package:visu/Responsive/responsive.dart';
+import 'package:visu/customWidgets/header.dart';
+import 'package:visu/responsive/responsive.dart';
 import 'package:webviewx/webviewx.dart';
 
 class Dashboard extends StatefulWidget {
@@ -27,8 +27,8 @@ class _DashboardState extends State<Dashboard> {
           child: SingleChildScrollView(
         child: Column(
           children: [
-            //const Header(),
-            //const SizedBox(height: 16.0),
+            const Header(),
+            const SizedBox(height: 16.0),
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Row(
@@ -36,11 +36,11 @@ class _DashboardState extends State<Dashboard> {
                   Expanded(
                     child: Responsive(
                       mobile: _openhabWebView(
-                          context, 'http://192.168.0.62:8080/basicui/app'),
+                          context, 'http://192.168.1.228:8080/basicui/app'),
                       tablet: _openhabWebView(
-                          context, 'http://192.168.0.62:8080/basicui/app'),
+                          context, 'http://192.168.1.228:8080/basicui/app'),
                       desktop: _openhabWebView(
-                          context, 'http://192.168.0.62:8080/basicui/app'),
+                          context, 'http://192.168.1.228:8080/basicui/app'),
                     ),
                   ),
                 ],

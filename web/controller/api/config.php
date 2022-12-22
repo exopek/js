@@ -17,8 +17,8 @@ $get_dld = 0;
 
 
 
-//header("Access-Control-Allow-Origin: *");
-header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+//header('Content-Type: application/json');
 // get request method
 $method = $_SERVER['REQUEST_METHOD'];
 
